@@ -1,0 +1,6 @@
+{
+    "path": "public/favicon.svg",
+    "text": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><rect width=\"64\" height=\"64\" rx=\"12\" fill=\"#171717\"/><path d=\"M17 13h30v8H26v8h18v8H26v14h-9z\" fill=\"#fff\"/></svg>",
+    "hash": "508a1cf1d567dc685e34934181a69be7ebfc6ce9ab404ecac071d012e9b48b01",
+    "total_lines": 1
+}
