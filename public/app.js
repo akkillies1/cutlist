@@ -99,8 +99,9 @@ function extractTextDimensions(text){
    const before=line.slice(Math.max(0,m.index-12),m.index),after=line.slice(m.index+m[0].length,m.index+m[0].length+12);
    const unit=(m[0].match(/\b(cm|mm)\b/i)||[])[1]?.toLowerCase();
    if(unit==='cm'){a*=10;b*=10;}
-   const qtyMatch=line.match(/\b(?:qty|quantity|nos?\.?|pcs?\.?|pieces?)\s*[:x-]?\s*(\d{1,4})\b/i)||line.match(/\b(\d{1,4})\s*(?:nos?\.?|pcs?\.?|pieces?)\b/i);
-   const qty=qtyMatch?Math.max(1,Math.min(10000,Number(qtyMatch[1]||qtyMatch[2])||1)):1;
+   const qtyTokens=[...line.matchAll(/\b(?:qty|quantity|nos?\.?|pcs?\.?|pieces?)\s*[:x-]?\s*(\d{1,4})\b|\b(\d{1,4})\s*(?:nos?\.?|pcs?\.?|pieces?)\b/ig)].map(q=>({at:q.index,end:q.index+q[0].length,value:Number(q[1]||q[2])}));
+   const anchor=m.index+m[0].length,nearestQty=qtyTokens.sort((x,y)=>Math.abs(x.at-anchor)-Math.abs(y.at-anchor))[0];
+   const qty=nearestQty?Math.max(1,Math.min(10000,nearestQty.value||1)):1;
    out.push({l:a,w:b,qty,name:line.slice(0,90),confirmed:false,origin:'text',unit:unit||'unspecified',context:before+' '+after});
   }
  }
