@@ -4,7 +4,7 @@ Browser-based tool for extracting candidate panel dimensions from 2D drawings an
 
 ## Current implementation
 
-This repository mirrors the source deployed on Hatchable as version 14.
+This repository mirrors the source deployed on Hatchable as version 15.
 
 - `public/index.html` — application shell and workflow copy.
 - `public/theme.css` — application styles.
@@ -16,7 +16,7 @@ This repository mirrors the source deployed on Hatchable as version 14.
 
 - Bounds PDF rasterization and image previews to reduce large canvas allocations.
 - Uses a bounded OCR canvas and one primary Tesseract recognition pass instead of repeatedly creating large variants.
-- Parses quantity annotations such as `QTY 2`, `QTY 4`, and `3 PCS`, and carries quantity into detected candidates.
+- Parses quantity annotations such as `QTY 2`, `QTY 4`, and `3 PCS`, associating each dimension pair with its nearest annotation even when PDF text is flattened onto one line.
 - Downscales OpenCV contour detection to a 1.5-megapixel working image and maps outline coordinates back to the preview.
 - Shows a warning when a candidate dimension pair is similar to an already accepted part or an earlier candidate on the same page. Similar dimensions are never automatically removed because multiple real panels can share a size.
 - Corrects UI copy so it no longer claims automatic duplicate-page suppression or OCR retry passes that are not implemented.
