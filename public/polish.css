@@ -127,3 +127,74 @@ main{margin-left:0!important;padding:0 clamp(16px,3vw,48px)!important;max-width:
  .intro{padding:18px 16px;border-radius:11px}
  .intro p{font-size:11px}
 }
+
+
+/* Mobile-first refinement: keep navigation compact and make dense factory tools usable by touch. */
+@media(max-width:760px){
+  html{scroll-padding-top:12px}
+  body{overflow-x:hidden}
+  .app-header{gap:8px;padding:9px 0 8px}
+  .header-brand{gap:8px}
+  .header-brand-copy strong{font-size:12px}
+  .header-brand-copy small{font-size:7px}
+  .app-top-nav{display:flex;gap:5px;max-width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .app-top-nav::-webkit-scrollbar{display:none}
+  .app-top-nav button{min-height:38px;border-radius:7px!important}
+  .app-top-nav .guide-nav-link{display:inline-flex;align-items:center;min-height:36px;padding:8px 10px}
+  .intro h2{line-height:1.12;max-width:15ch}
+  .design-subnav{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .design-subnav::-webkit-scrollbar{display:none}
+  .design-subnav button{flex:0 0 auto;min-width:max-content}
+  .design-subnav .design-chip{display:none}
+  .design-workspace{min-width:0}
+  .design-controls,.pg-controls,.as-sidebar{min-width:0}
+  .design-controls input,.design-controls select,.design-controls textarea,
+  .pg-controls input,.pg-controls select,.pg-controls textarea,
+  .as-sidebar input,.as-sidebar select,.as-sidebar textarea,
+  .settings input,.settings select,.manual-grid input,.manual-grid select{min-width:0;max-width:100%;font-size:16px}
+  .design-views,.pg-preview-column,.as-visual-column{min-width:0;padding:10px}
+  .design-canvas,.design-canvas canvas{width:100%;max-width:100%;height:270px;min-height:270px}
+  .design-view-toolbar,.pg-preview-head,.as-view-header{align-items:flex-start;gap:9px;flex-wrap:wrap}
+  .design-view-toolbar button,.pg-view-toggle button,.as-view-buttons button{min-height:38px}
+  .design-metrics,.pg-metrics,.as-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .design-metrics>*,.pg-metrics>*,.as-metrics>*{min-width:0;padding:9px}
+  .pg-output-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .pg-output-actions button{width:100%;min-width:0}
+  .pg-output-actions span{grid-column:1/-1;order:3}
+  .as-preset-bar,.as-constraint-inputs,.manual-grid,.settings{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .as-preset-bar>label,.as-preset-bar>button{min-width:0}
+  .as-preset-bar>button{grid-column:1/-1}
+  .panel{min-width:0;padding:12px}
+  .panel-head{gap:10px}
+  .panel-head h3{font-size:15px}
+  .panel-head p{font-size:11px;line-height:1.5}
+  .panel-head .header-actions{display:flex;flex-wrap:wrap;gap:6px}
+  .panel-head .header-actions button,.panel-foot button{min-height:38px}
+  .table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .table-wrap table{min-width:1120px}
+  .stats{gap:8px}
+  .stats article{min-width:0;padding:11px}
+  .stats article strong{font-size:20px}
+  .qa-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lower{gap:12px}
+  .notice{font-size:10px;line-height:1.6}
+  footer{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:18px 2px}
+}
+@media(max-width:420px){
+  main{padding-inline:10px!important}
+  .header-brand-mark{width:30px;height:30px}
+  .header-brand-copy strong{font-size:11px;letter-spacing:.12em}
+  .header-brand-copy small{font-size:6px;letter-spacing:.08em}
+  .app-top-nav button{padding:8px 9px!important;font-size:10px!important}
+  .app-top-nav .guide-nav-link{font-size:10px;padding:7px!important}
+  .intro{padding:16px 13px}
+  .intro h2{font-size:22px}
+  .intro p{font-size:11px}
+  .design-controls{padding:11px}
+  .design-canvas,.design-canvas canvas{height:240px;min-height:240px}
+  .as-preset-bar,.as-constraint-inputs,.manual-grid,.settings{grid-template-columns:minmax(0,1fr)}
+  .pg-output-actions{grid-template-columns:minmax(0,1fr)}
+  .pg-output-actions span{grid-column:auto}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .panel{padding:10px}
+}
