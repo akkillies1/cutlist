@@ -282,3 +282,15 @@ main{margin-left:0!important;padding:0 clamp(16px,3vw,48px)!important;max-width:
 .design-step2-mode button span{font-size:10px;line-height:1.45;color:#747a70}
 .design-wizard-panel input[aria-invalid="true"]{border-color:#b44c39!important;box-shadow:0 0 0 2px #b44c3920!important}
 @media(max-width:520px){.design-step2-context{padding:10px}.design-step2-mode{grid-template-columns:minmax(0,1fr)}.design-step2-mode button{padding:11px}.design-step2-project strong{font-size:14px}}
+
+/* Step 3: make the first 2D-plan handoff explicit without changing geometry calculations. */
+.design-step3-start-card{display:grid;grid-template-columns:54px minmax(0,1fr);gap:16px;align-items:start;padding:20px;margin:0 0 22px;border:1px solid #dfe4d8;border-radius:14px;background:linear-gradient(135deg,#fbfcf8 0%,#f0f4e9 100%)}
+.design-step3-start-mark{display:grid;place-items:center;width:54px;height:54px;border-radius:12px;background:#252922;color:#d7ee9a;font-size:12px;font-weight:800;letter-spacing:.06em}
+.design-step3-start-copy{min-width:0}
+.design-step3-kicker{margin:0 0 4px;color:#6e7b5a;font-size:10px;font-weight:800;letter-spacing:.13em}
+.design-step3-start-copy h5{margin:0 0 7px;color:#242820;font-size:19px;letter-spacing:-.035em}
+.design-step3-start-copy>p:not(.design-step3-kicker){margin:0;color:#60665b;max-width:850px}
+.design-step3-context{display:flex;flex-wrap:wrap;gap:7px;margin:13px 0}
+.design-step3-context span{display:inline-flex;align-items:center;max-width:100%;padding:5px 9px;border:1px solid #dce2d3;border-radius:7px;background:#fff;color:#3f4738;font-size:11px;font-weight:650;overflow-wrap:anywhere}
+.design-step3-start-copy .design-step3-next{padding-top:11px;border-top:1px solid #dfe4d8;font-size:12px}
+@media(max-width:600px){.design-step3-start-card{grid-template-columns:40px minmax(0,1fr);gap:11px;padding:14px}.design-step3-start-mark{width:40px;height:40px;font-size:10px}.design-step3-start-copy h5{font-size:17px}.design-step3-context{gap:6px}.design-step3-context span{font-size:10px}}
