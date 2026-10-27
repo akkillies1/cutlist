@@ -1,4 +1,4 @@
-import { buildKitchenGeometry, validateKitchenGeometry } from './kitchen-geometry.js?v=102';
+import { buildKitchenGeometry, validateKitchenGeometry } from './kitchen-geometry.js?v=103';
 import { initPanelGeometry } from './panel-geometry-ui.js?v=100';
 import { initAssemblyStudio, getAssemblySnapshot } from './assembly-studio.js?v=101';
 import { initDesignTemplateAdvisor } from './design-template-advisor.js?v=100';
