@@ -643,7 +643,51 @@ function render2D(){
  const noteEl=$d('#drawingViewNote');if(noteEl)noteEl.textContent=note;
  document.querySelectorAll('[data-drawing-view]').forEach(b=>b.classList.toggle('active',b.dataset.drawingView===drawingView));
 }
+async function renderKitchen3D(){
+ const token=++renderToken,host=$d('#design3d');if(!host)return;
+ try{
+  const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
+  if(token!==renderToken)return;
+  if(sceneState?.cancelAnimation)sceneState.cancelAnimation();if(sceneState?.resizeObserver)sceneState.resizeObserver.disconnect();if(sceneState?.renderer){sceneState.renderer.dispose();sceneState=null;}
+  const plan=readKitchenPlan(),roomW=Number($d('#d-roomW')?.value)||3600,roomD=Number($d('#d-roomD')?.value)||3000,roomH=Number($d('#d-roomH')?.value)||2700;
+  const model=buildKitchenGeometry({...plan,roomW,roomD,roomH,runA:Number(plan.runA)||roomW,runB:Number(plan.runB)||0,runC:Number(plan.runC)||0,baseDepth:Number(plan.baseDepth)||560,wallDepth:Number(plan.wallDepth)||350});
+  const issues=validateKitchenGeometry(model,{...plan,aisle:Number(plan.aisle)||1000});
+  host.innerHTML='<canvas aria-label="Interactive 3D kitchen layout preview"></canvas><span class="design-chip" style="position:absolute;left:9px;top:9px">KITCHEN MODEL · drag to orbit · scroll to zoom</span><span class="design-chip design-visual-only" style="position:absolute;right:9px;top:9px">VISUAL ONLY · CHECK 2D DIMENSIONS</span><span class="design-chip" style="position:absolute;left:9px;bottom:9px">'+(issues.length?'GEOMETRY WARNINGS: '+issues.length:'ROOM MODEL BUILT FROM SHARED GEOMETRY')+'</span>';
+  const canvas=host.querySelector('canvas'),w=Math.max(host.clientWidth,280),h=Math.max(host.clientHeight,260);
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(w,h,false);renderer.setClearColor(0xf2f3ef,1);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+  const scene=new THREE.Scene();scene.background=new THREE.Color(0xf2f3ef);const camera=new THREE.PerspectiveCamera(42,w/h,.1,20000);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x8c9583,2.1));const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(5,9,7);scene.add(key);
+  const scale=7/Math.max(model.room.widthMm,model.room.depthMm),rw=model.room.widthMm*scale,rd=model.room.depthMm*scale,rh=model.room.heightMm*scale,group=new THREE.Group();scene.add(group);
+  const carcass=new THREE.MeshStandardMaterial({color:0xd8d9cf,roughness:.82}),front=new THREE.MeshStandardMaterial({color:state.finish==='Veneer'?0xb89a76:state.finish==='Acrylic'?0xe5e8e5:0xf0f0e9,roughness:state.finish==='Acrylic'?.3:.75}),topMat=new THREE.MeshStandardMaterial({color:0x777e73,roughness:.48}),wallMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,transparent:true,opacity:.16}),lineMat=new THREE.LineBasicMaterial({color:0x87917d});
+  function block(cx,cy,cz,sx,sy,sz,mat){const mesh=new THREE.Mesh(new THREE.BoxGeometry(Math.max(.015,sx),Math.max(.015,sy),Math.max(.015,sz)),mat);mesh.position.set(cx,cy,cz);group.add(mesh);return mesh;}
+  block(0,-.035,0,rw,.06,rd,new THREE.MeshStandardMaterial({color:0xe7e9e2,roughness:1}));
+  const edgePts=[[-rw/2,0,-rd/2],[rw/2,0,-rd/2],[rw/2,0,rd/2],[-rw/2,0,rd/2],[-rw/2,0,-rd/2]].map(p=>new THREE.Vector3(...p));group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(edgePts),lineMat));
+  block(0,rh/2,-rd/2,rw,rh,.025,wallMat);block(-rw/2,rh/2,0,.025,rh,rd,wallMat);
+  const baseDepth=Number(plan.baseDepth)||560,baseH=Number(plan.counterHeight)||900,plinth=Number(plan.plinth)||100,topT=Number(plan.counterThickness)||20,wallDepth=Number(plan.wallDepth)||350,wallH=Number(plan.wallHeight)||720;
+  for(const run of model.runs||[]){
+   const horizontal=run.orientation==='horizontal',vertical=run.orientation==='vertical',x1=Math.min(run.start.xMm,run.end.xMm),y1=Math.min(run.start.yMm,run.end.yMm),x2=Math.max(run.start.xMm,run.end.xMm),y2=Math.max(run.start.yMm,run.end.yMm);
+   const xc=((x1+x2)/2-model.room.widthMm/2)*scale,zc=((y1+y2)/2-model.room.depthMm/2)*scale;
+   const length=(horizontal?run.lengthMm:vertical?run.lengthMm:x2-x1)*scale,depth=(horizontal||vertical?run.depthMm:y2-y1)*scale,ww=horizontal?length:vertical?depth:length,dd=horizontal?depth:vertical?length:depth;
+   const carcassHeight=Math.max(200,baseH-plinth-topT)*scale;
+   block(xc,carcassHeight/2+plinth*scale,zc,Math.max(.1,ww),carcassHeight,Math.max(.1,dd),carcass);
+   block(xc,carcassHeight/2+plinth*scale,zc+dd/2+.012,Math.max(.08,ww*.97),carcassHeight*.88,.025,front);
+   block(xc,baseH*scale,zc,Math.max(.1,ww+.06),topT*scale,Math.max(.1,dd+.06),topMat);
+   if(['main','return-left','return-right','opposing'].includes(run.role)&&plan.wallEnabled!==false&&wallH>0){
+    const upperBottom=(baseH+Number(plan.backsplashGap||550))*scale,upperDepth=wallDepth*scale;
+    block(xc,upperBottom+wallH*scale/2,zc-upperDepth*.12,Math.max(.1,ww),wallH*scale,upperDepth,carcass);
+    block(xc,upperBottom+wallH*scale/2,zc+upperDepth*.38,Math.max(.08,ww*.97),wallH*scale*.94,.025,front);
+   }
+  }
+  for(const m of model.positionedModules||[]){const x=(m.xMm+m.widthMm/2-model.room.widthMm/2)*scale,z=(m.yMm+m.depthMm/2-model.room.depthMm/2)*scale;block(x,(baseH-plinth/2)*scale,z+m.depthMm*scale/2+.025,.025,Math.max(.12,(baseH-plinth-topT)*scale*.78),.02,topMat);}
+  const target=new THREE.Vector3(0,Math.min(rh*.4,2.2),0),distance=Math.max(rw,rd,rh)*1.35;let azimuth=.72,elevation=.72,zoom=distance;
+  function placeCamera(){camera.position.set(target.x+zoom*Math.cos(elevation)*Math.sin(azimuth),target.y+zoom*Math.sin(elevation),target.z+zoom*Math.cos(elevation)*Math.cos(azimuth));camera.lookAt(target);camera.updateProjectionMatrix();}
+  placeCamera();let dragging=false,lastX=0,lastY=0;canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId);});canvas.addEventListener('pointermove',e=>{if(!dragging)return;azimuth-=(e.clientX-lastX)*.008;elevation=Math.max(.12,Math.min(1.35,elevation+(e.clientY-lastY)*.006));lastX=e.clientX;lastY=e.clientY;placeCamera();});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointercancel',()=>dragging=false);canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(distance*.45,Math.min(distance*2.8,zoom*(e.deltaY>0?1.08:.92)));placeCamera();},{passive:false});
+  const resize=()=>{const nw=Math.max(host.clientWidth,280),nh=Math.max(host.clientHeight,260);renderer.setSize(nw,nh,false);camera.aspect=nw/nh;camera.updateProjectionMatrix();};const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(host);
+  sceneState={renderer,resizeObserver,scene,camera,group,kitchen:true};let raf=0;function animate(){if(token!==renderToken)return;raf=requestAnimationFrame(animate);renderer.render(scene,camera);}animate();sceneState.cancelAnimation=()=>cancelAnimationFrame(raf);
+ }catch(e){host.innerHTML='<div style="padding:20px;font-size:11px;color:#765c26">Kitchen 3D preview could not be rendered. Review the measured room and browser graphics support.</div>';console.error('Kitchen 3D preview failed',e);}
+}
 async function render3D(){
+ if(($d('#d-space')?.value||state.space)==='Kitchen'){return renderKitchen3D();}
  const token=++renderToken,host=$d('#design3d');if(!host)return;
  if(!val('width')||!val('height')||!val('depth')||!val('board')||!val('shelfBoard')||!val('doorBoard')||!val('back')||val('width')<=2*val('board')){if(sceneState?.resizeObserver)sceneState.resizeObserver.disconnect();if(sceneState?.renderer){sceneState.renderer.dispose();sceneState=null;}host.innerHTML='<div style="padding:20px;font-size:10px;color:#765c26">Enter valid cabinet dimensions to render the 3D preview.</div>';return;}
  try{
