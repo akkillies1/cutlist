@@ -174,6 +174,22 @@ as $$ select exists(select 1 from public.workspace_members wm where wm.workspace
 create function public.is_workspace_admin(target_workspace uuid) returns boolean language sql stable security definer set search_path=''
 as $$ select exists(select 1 from public.workspace_members wm where wm.workspace_id=target_workspace and wm.user_id=(select auth.uid()) and wm.role in ('owner','admin')); $$;
 
+-- Bootstrap the creator as owner in the same transaction as workspace creation.
+-- This avoids a client-side gap where a new workspace exists without an owner membership.
+create function public.add_workspace_creator_as_owner()
+returns trigger language plpgsql security definer set search_path=''
+as $
+begin
+  insert into public.workspace_members(workspace_id,user_id,role)
+  values (new.id,new.created_by,'owner')
+  on conflict (workspace_id,user_id) do nothing;
+  return new;
+end;
+$;
+create trigger workspaces_add_creator_owner
+after insert on public.workspaces
+for each row execute function public.add_workspace_creator_as_owner();
+
 alter table public.workspaces enable row level security;
 alter table public.workspace_members enable row level security;
 alter table public.projects enable row level security;
