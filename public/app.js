@@ -389,9 +389,18 @@ async function runNemotronOcr(){
 }
 async function extractNativePDFRectangles(page){
  const pdfjs=window.pdfjsLib,OPS=pdfjs?.OPS||{},list=await page.getOperatorList(),found=[];
- const viewport=page.getViewport({scale:1});
- const add=(x,y,w,h)=>{if(![x,y,w,h].every(Number.isFinite)||Math.abs(w)<2||Math.abs(h)<2)return;const a=viewport.convertToViewportPoint(x,y),b=viewport.convertToViewportPoint(x+w,y+h),r={x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),w:Math.abs(a[0]-b[0]),h:Math.abs(a[1]-b[1])};if(r.w>=12&&r.h>=12&&r.w<viewport.width*.98&&r.h<viewport.height*.98&&r.w/r.h<20&&r.h/r.w<20&&!found.some(q=>Math.abs(q.x-r.x)<2&&Math.abs(q.y-r.y)<2&&Math.abs(q.w-r.w)<3&&Math.abs(q.h-r.h)<3))found.push({...r,selected:false,name:'PDF vector rectangle '+(found.length+1),source:'native PDF vector'});};
- for(let i=0;i<list.fnArray.length&&i<12000;i++){const fn=list.fnArray[i],a=list.argsArray[i]||[];if(fn===OPS.rectangle&&a.length>=4)add(+a[0],+a[1],+a[2],+a[3]);else if(fn===OPS.constructPath&&Array.isArray(a[0])&&Array.isArray(a[1])){let k=0;for(const op of a[0]){if(op===OPS.rectangle&&k+3<a[1].length){add(+a[1][k],+a[1][k+1],+a[1][k+2],+a[1][k+3]);k+=4;}else if(op===OPS.moveTo||op===OPS.lineTo)k+=2;else if(op===OPS.curveTo)k+=6;else if(op===OPS.curveTo2||op===OPS.curveTo3)k+=4;}}}
+ const viewport=page.getViewport({scale:1}),identity=[1,0,0,1,0,0];let ctm=identity.slice();const stack=[];
+ const multiply=(m,n)=>[m[0]*n[0]+m[2]*n[1],m[1]*n[0]+m[3]*n[1],m[0]*n[2]+m[2]*n[3],m[1]*n[2]+m[3]*n[3],m[0]*n[4]+m[2]*n[5]+m[4],m[1]*n[4]+m[3]*n[5]+m[5]];
+ const point=(x,y)=>[ctm[0]*x+ctm[2]*y+ctm[4],ctm[1]*x+ctm[3]*y+ctm[5]];
+ const add=(x,y,w,h)=>{if(![x,y,w,h].every(Number.isFinite)||Math.abs(w)<2||Math.abs(h)<2)return;const corners=[[x,y],[x+w,y],[x,y+h],[x+w,y+h]].map(([px,py])=>{const q=point(px,py);return viewport.convertToViewportPoint(q[0],q[1]);}),xs=corners.map(p=>p[0]),ys=corners.map(p=>p[1]),r={x:Math.min(...xs),y:Math.min(...ys),w:Math.max(...xs)-Math.min(...xs),h:Math.max(...ys)-Math.min(...ys)};if(r.w>=12&&r.h>=12&&r.w<viewport.width*.98&&r.h<viewport.height*.98&&r.w/r.h<20&&r.h/r.w<20&&!found.some(q=>Math.abs(q.x-r.x)<2&&Math.abs(q.y-r.y)<2&&Math.abs(q.w-r.w)<3&&Math.abs(q.h-r.h)<3))found.push({...r,selected:false,name:'PDF vector rectangle '+(found.length+1),source:'native PDF vector'});};
+ for(let i=0;i<list.fnArray.length&&i<12000;i++){
+  const fn=list.fnArray[i],a=list.argsArray[i]||[];
+  if(fn===OPS.save){stack.push(ctm.slice());continue;}
+  if(fn===OPS.restore){ctm=stack.pop()||identity.slice();continue;}
+  if(fn===OPS.transform&&a.length>=6){ctm=multiply(ctm,a.map(Number));continue;}
+  if(fn===OPS.rectangle&&a.length>=4)add(+a[0],+a[1],+a[2],+a[3]);
+  else if(fn===OPS.constructPath&&Array.isArray(a[0])&&Array.isArray(a[1])){let k=0;for(const op of a[0]){if(op===OPS.rectangle&&k+3<a[1].length){add(+a[1][k],+a[1][k+1],+a[1][k+2],+a[1][k+3]);k+=4;}else if(op===OPS.moveTo||op===OPS.lineTo)k+=2;else if(op===OPS.curveTo)k+=6;else if(op===OPS.curveTo2||op===OPS.curveTo3)k+=4;}}
+ }
  return {rects:found.slice(0,300),operations:list.fnArray.length};
 }
 async function detectGeometry(){
