@@ -33,7 +33,7 @@ test('parallel runs flag an aisle below target', () => {
 });
 
 test('island footprint is checked against room bounds', () => {
-  const input = { layout: 'island', roomW: 2000, roomD: 1800, runA: 1500, islandWidth: 1600, islandDepth: 800 };
+  const input = { layout: 'island', roomW: 1000, roomD: 1800, runA: 900, islandWidth: 1600, islandDepth: 800 };
   assert.ok(validate(build(input), input).some(s => s.includes('footprint extends beyond')));
 });
 
