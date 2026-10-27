@@ -1,6 +1,1 @@
-{
-    "path": "hatchable.toml",
-    "text": "name = \"DCODE Cutting List Preparator\"",
-    "hash": "6e828e03180097ae7a28b217c492821b0066f8c5ee535a7a8e212cf8353e0286",
-    "total_lines": 1
-}
+name = "DCODE Cutting List Preparator"
