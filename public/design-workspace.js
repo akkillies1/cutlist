@@ -650,16 +650,16 @@ async function render3D(){
   const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
   if(token!==renderToken)return;
   if(sceneState?.renderer){sceneState.renderer.dispose();sceneState=null;}host.innerHTML='';
-  host.innerHTML='<canvas aria-label="Interactive 3D cabinet preview"></canvas><span class="design-chip" style="position:absolute;left:9px;top:9px">3D · drag to orbit · scroll to zoom</span>';
+  host.innerHTML='<canvas aria-label="Interactive 3D cabinet preview"></canvas><span class="design-chip" style="position:absolute;left:9px;top:9px">3D PREVIEW · drag to orbit · scroll to zoom</span><span class="design-chip design-visual-only" style="position:absolute;right:9px;top:9px">VISUAL ONLY · 2D CONTROLS MANUFACTURING</span>';
   const canvas=host.querySelector('canvas'),w=Math.max(host.clientWidth,280),h=Math.max(host.clientHeight,260);
-  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(w,h,false);renderer.setClearColor(0xf2f3ef,1);
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(w,h,false);renderer.setClearColor(0xf2f3ef,1);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
   const scene=new THREE.Scene();scene.background=new THREE.Color(0xf2f3ef);
   const camera=new THREE.PerspectiveCamera(38,w/h,0.1,10000);
   const W=val('width'),H=val('height'),D=val('depth'),T=val('board'),B=val('back'),loftOn=!!state.wardrobeLoftEnabled&&Number(state.wardrobeLoftHeight)>0,loftMm=loftOn?Number(state.wardrobeLoftHeight):0;
   const scale=1000/Math.max(W,H+loftMm,D),ww=W*scale,hh=H*scale,lh=loftMm*scale,dd=D*scale,tt=T*scale,bb=B*scale;
   const group=new THREE.Group();scene.add(group);
   const base=state.finish==='Acrylic'?0xc7cecc:state.finish==='Veneer'?0xb69a78:0xd8d7ce;
-  const wood=new THREE.MeshStandardMaterial({color:base,roughness:.82,metalness:.02});
+  const wood=new THREE.MeshStandardMaterial({color:base,roughness:state.finish==='Acrylic'?.34:state.finish==='Veneer'?.68:.86,metalness:state.finish==='Acrylic'?.08:.015});
   const dark=new THREE.MeshStandardMaterial({color:0x92998b,roughness:.9});
   function box(x,y,z,sx,sy,sz,mat=wood){const mesh=new THREE.Mesh(new THREE.BoxGeometry(Math.max(sx,.1),Math.max(sy,.1),Math.max(sz,.1)),mat);mesh.position.set(x,y,z);group.add(mesh);}
   box(-ww/2+tt/2,hh/2,0,tt,hh,dd);box(ww/2-tt/2,hh/2,0,tt,hh,dd);
@@ -670,7 +670,7 @@ async function render3D(){
   const shelfT=val('shelfBoard')*scale,shelfYs=(['wardrobe-hanging','wardrobe-double-hang'].includes(state.template)&&shelves===1)?[tt+innerH*.82]:Array.from({length:shelves},(_,i)=>tt+innerH*(i+1)/(shelves+1)),mixedWardrobe=state.template==='wardrobe'&&partitions>0&&val('rodLength')>0,shelfBayW=(innerW-partitions*tt)/(partitions+1);for(const sy of shelfYs){const bayCount=mixedWardrobe?1:partitions+1;for(let bi=0;bi<bayCount;bi++){const bx=-innerW/2+bi*(shelfBayW+tt)+shelfBayW/2;box(bx,sy,0,shelfBayW,shelfT,dd);}}
   for(let i=1;i<=partitions;i++){const px=-innerW/2+i*shelfBayW+(i-.5)*tt;box(px,hh/2,0,tt,Math.max(1,hh-2*tt),dd);}
   const doors=Math.max(1,Math.floor(val('doors'))),gap=val('doorGap')*scale,doorW=(ww-gap*(doors+1))/doors,doorH=hh-2*gap;
-  const doorMat=new THREE.MeshStandardMaterial({color:state.finish==='Acrylic'?0xe5e8e5:state.finish==='Veneer'?0xbda17e:0xe0dfd6,roughness:state.finish==='Acrylic'?.3:.75,metalness:state.finish==='Acrylic'?.12:.01});
+  const doorMat=new THREE.MeshStandardMaterial({color:state.finish==='Acrylic'?0xe5e8e5:state.finish==='Veneer'?0xbda17e:0xe0dfd6,roughness:state.finish==='Acrylic'?.28:state.finish==='Veneer'?.62:.78,metalness:state.finish==='Acrylic'?.1:.015});
   const doorStyle=$d('#d-doorStyle')?.value||'hinged';
   if(doorStyle!=='open'){const doorT=val('doorBoard')*scale;for(let i=0;i<doors;i++){const dx=-ww/2+gap+doorW/2+i*(doorW+gap),panelH=Math.max(1,doorH);box(dx,gap+panelH/2,dd/2+doorT/2,Math.max(1,doorW),panelH,doorT,doorMat);if(val('handles')>0&&i<val('handles'))box(dx+doorW*.34,gap+panelH/2,dd/2+tt*1.02,Math.max(2,tt*.12),Math.max(8,panelH*.06),Math.max(2,tt*.12),dark);}}
   const drawerCount=Math.min(8,Math.floor(val('drawers'))),drawerGap=gap*scale,drawerH=(hh-2*tt-drawerGap*(drawerCount+1))/Math.max(drawerCount,1);for(let i=0;i<drawerCount;i++){if(drawerH>0)box(0,tt+drawerGap+drawerH/2+i*(drawerH+drawerGap),dd/2+tt/2,Math.max(1,innerW-2*drawerGap),drawerH,tt,doorMat);}
@@ -680,8 +680,11 @@ async function render3D(){
   if(val('ledLength')>0){const ledMat=new THREE.MeshStandardMaterial({color:0xffe7a6,emissive:0xffd46a,emissiveIntensity:.6});const ledLen=Math.min(innerW,Math.max(0,val('ledLength'))*scale);box(0,hh-tt*1.2,dd*.25,ledLen,Math.max(1,tt*.05),Math.max(1,tt*.05),ledMat);}
   const customComps=(Array.isArray(state.components)?state.components:[]).filter(c=>Number(c.qty)>0);
   customComps.forEach((c,i)=>{const cw=Math.max(0,Number(c.width)||0)*scale,ch=Math.max(0,Number(c.height)||0)*scale,cd=Math.max(0,Number(c.depth)||0)*scale,ct=Math.max(1,Number(c.thickness)||T)*scale,q=Math.min(20,Math.max(1,Math.floor(Number(c.qty)||1))),y=tt+(hh-2*tt)*(i+1)/(customComps.length+1),metal=new THREE.MeshStandardMaterial({color:0x7f8a8c,metalness:.55,roughness:.4});if(c.type==='shelf'){for(let n=0;n<q;n++)box(0,tt+(hh-2*tt)*(n+1)/(q+1),0,Math.min(innerW,cw),Math.max(1,ct),Math.min(dd,cd),wood);}else if(c.type==='shutter'){for(let n=0;n<q;n++){const sw=Math.min(ww,cw)/q;box(-Math.min(ww,cw)/2+sw*(n+.5),hh/2,dd/2+ct/2,Math.max(1,sw-1),Math.min(hh,ch),ct,doorMat);}}else if(c.type==='partition'){for(let n=0;n<q;n++)box(-innerW/2+innerW*(n+1)/(q+1),Math.min(hh,ch)/2,0,ct,Math.min(innerH,ch),Math.min(dd,cd),wood);}else if(c.type==='drawer'||c.type==='tandem'){for(let n=0;n<q;n++){const fy=tt+(hh-2*tt)*(n+1)/(q+1);box(0,fy,dd/2+ct/2,Math.min(innerW,cw),Math.max(1,ch),ct,doorMat);if(c.type==='tandem'){box(-Math.min(innerW,cw)*.42,fy-ct,0,Math.max(1,ct*.18),Math.max(1,ch*.7),Math.min(dd,cd),metal);box(Math.min(innerW,cw)*.42,fy-ct,0,Math.max(1,ct*.18),Math.max(1,ch*.7),Math.min(dd,cd),metal);}}}else if(c.type==='accessory'){box(0,y,0,Math.min(innerW,Math.max(8,cw||tt*2)),Math.max(5,Math.min(hh*.08,ch||tt*2)),Math.min(dd,Math.max(8,cd||tt*2)),metal);}});
-  const grid=new THREE.GridHelper(Math.max(ww,dd)*2,20,0xc2c8bc,0xdde0d8);grid.position.y=-2;scene.add(grid);
-  scene.add(new THREE.HemisphereLight(0xffffff,0x74786f,2));const light=new THREE.DirectionalLight(0xffffff,2);light.position.set(ww,hh*1.5,dd*2);scene.add(light);
+  const grid=new THREE.GridHelper(Math.max(ww,dd)*2.2,24,0xb6beb0,0xe0e4dc);grid.position.y=-2;scene.add(grid);
+  scene.add(new THREE.HemisphereLight(0xfffbf2,0x737c70,2.15));
+  const keyLight=new THREE.DirectionalLight(0xfff4df,3.0);keyLight.position.set(-ww*1.2,hh*1.7,dd*2.2);scene.add(keyLight);
+  const fillLight=new THREE.DirectionalLight(0xe6efff,1.25);fillLight.position.set(ww*1.8,hh*.8,dd*.8);scene.add(fillLight);
+  const rimLight=new THREE.DirectionalLight(0xffffff,1.7);rimLight.position.set(0,hh*1.1,-dd*2.0);scene.add(rimLight);
   const target=new THREE.Vector3(0,(hh+lh)/2,0);let radius=Math.max(ww,hh+lh,dd)*2.25,theta=.72,phi=1.05;
   const place=()=>{camera.position.set(target.x+radius*Math.sin(phi)*Math.sin(theta),target.y+radius*Math.cos(phi),target.z+radius*Math.sin(phi)*Math.cos(theta));camera.lookAt(target);};place();
   let dragging=false,lastX=0,lastY=0;
@@ -690,6 +693,8 @@ async function render3D(){
   canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointercancel',()=>dragging=false);
   canvas.addEventListener('wheel',e=>{e.preventDefault();radius=Math.max(Math.max(ww,hh,dd)*.9,Math.min(Math.max(ww,hh,dd)*6,radius*(e.deltaY>0?1.08:.92)));place();renderer.render(scene,camera);},{passive:false});
   renderer.render(scene,camera);sceneState={renderer,scene,camera,host};
+  const resizeObserver=typeof ResizeObserver!=='undefined'?new ResizeObserver(()=>{if(!host.isConnected||sceneState?.renderer!==renderer)return;const nw=Math.max(host.clientWidth,280),nh=Math.max(host.clientHeight,260);renderer.setSize(nw,nh,false);camera.aspect=nw/nh;camera.updateProjectionMatrix();renderer.render(scene,camera);}):null;
+  resizeObserver?.observe(host);sceneState.resizeObserver=resizeObserver;
  }catch(e){host.innerHTML='<div style="padding:20px;font-size:10px;line-height:1.7;color:#765c26">3D renderer could not load. Check network access to the Three.js CDN and WebGL support. The 2D elevation, parametric calculations, cost estimate and cut-list proposal remain available.<br><small>'+safe(e.message||e)+'</small></div>';}
 }
 function csvExport(){if(!calculated.length)return;const rows=[['Part','Length mm','Width mm','Thickness mm','Quantity','Edge treatment status'],...calculated.map(p=>[p.name,p.l,p.w,p.t,p.qty,p.edge])];const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='DCODE-design-cutlist-proposal.csv';a.click();URL.revokeObjectURL(a.href);}
