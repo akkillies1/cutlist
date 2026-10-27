@@ -198,3 +198,9 @@ main{margin-left:0!important;padding:0 clamp(16px,3vw,48px)!important;max-width:
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .panel{padding:10px}
 }
+
+/* Product identity: LOW BALANCE is the product; DCODE Interiors is the maker. */
+.brand strong{font-size:15px;letter-spacing:.12em}
+.header-brand-copy strong{font-size:15px!important;letter-spacing:.12em!important}
+.header-brand-copy small{font-size:8px!important;letter-spacing:.1em!important}
+@media(max-width:420px){.header-brand-copy strong{font-size:12px!important;letter-spacing:.08em!important}.header-brand-copy small{font-size:7px!important}}
