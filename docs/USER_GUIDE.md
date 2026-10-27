@@ -1,6 +1,12 @@
-# DCODE Cutting List Preparator — User Field Guide
+# DCODE Low Balance — User Field Guide
 
-**Audience:** designers, estimators, drawing reviewers and factory users. This is the operating manual for the app. Follow the checks every time; do not treat a preview or automatic check as manufacturing approval.
+**Precision Engineered Luxury**
+
+**Product:** DCODE Low Balance  
+**Product domain:** https://lb.dcodeinteriors.com  
+**Audience:** designers, estimators, drawing reviewers and factory users.
+
+This is the operating manual for DCODE Low Balance, a design-to-manufacturing workspace spanning 2D drawing review, 3D cabinet design, parametric engineering and cut-list preparation. Follow the checks every time; do not treat a preview or automatic check as manufacturing approval.
 
 ## The safest end-to-end workflow
 
