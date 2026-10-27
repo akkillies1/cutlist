@@ -74,6 +74,24 @@ export function buildKitchenGeometry(input = {}) {
       start:{xMm:(room.widthMm-islandWidth)/2,yMm:(room.depthMm-islandDepth)/2},
       end:{xMm:(room.widthMm+islandWidth)/2,yMm:(room.depthMm+islandDepth)/2}, orientation:'island', modules:[], nominalModulesTotalMm:0 });
   }
+  // Materialise each nominal module as a positioned room-local object. This is the
+  // shared coordinate contract for future elevation, plan and 3D projections;
+  // it does not yet imply shutter, filler or manufacturer-specific construction.
+  const positionedModules = runs.flatMap(run => (run.modules || []).map(module => {
+    const vertical = run.orientation === 'vertical';
+    const xMm = run.start.xMm + (vertical ? 0 : module.startMm);
+    const yMm = run.start.yMm + (vertical ? module.startMm : 0);
+    return {
+      id: module.id, runId: run.id, sequence: module.sequence,
+      role: run.role, orientation: run.orientation,
+      xMm, yMm,
+      widthMm: vertical ? run.depthMm : module.widthMm,
+      depthMm: vertical ? module.widthMm : run.depthMm,
+      runLengthMm: module.widthMm,
+      startMm: module.startMm, endMm: module.endMm,
+      overrun: module.overrun
+    };
+  }));
   const baseHeight = baseEnabled ? Math.max(0,n(input.counterHeight,900)-n(input.plinth,100)-n(input.counterThickness,20)) : 0;
   const upperHeight = input.wallEnabled === false ? 0 : positive(input.wallHeight);
   const loftHeight = input.wallEnabled === false || input.loftEnabled === false ? 0 : positive(input.loftHeight);
@@ -96,7 +114,7 @@ export function buildKitchenGeometry(input = {}) {
     room,
     layoutKind: layout === 'c' ? 'c-shaped-three-run' : layout === 'u' ? 'u-shaped-three-run' : layout === 'peninsula' ? 'attached-peninsula' : layout,
     dimensions:{runA,runB,runC,baseDepthMm:baseDepth,wallDepthMm:wallDepth,peninsulaLengthMm:peninsulaLength,peninsulaWidthMm:peninsulaWidth,peninsulaSide},
-    runs, verticalZones, moduleCollections,
+    runs, positionedModules, verticalZones, moduleCollections,
     openings:{
       window:{widthMm:positive(input.windowWidth),offsetMm:positive(input.windowOffset),location:String(input.window||'unknown')},
       door:{widthMm:positive(input.doorWidth),offsetMm:positive(input.doorOffset)}
@@ -124,6 +142,12 @@ export function validateKitchenGeometry(model, input = {}) {
   for (const set of model.moduleCollections || []) {
     if (Math.abs(set.actualMm - set.expectedMm) > 1)
       issues.push(set.runId + ' module widths total ' + set.actualMm + ' mm; required usable length is ' + set.expectedMm + ' mm.');
+  }
+  for (const module of model.positionedModules || []) {
+    const right = module.xMm + module.widthMm;
+    const bottom = module.yMm + module.depthMm;
+    if (module.xMm < -1 || module.yMm < -1 || right > room.widthMm + 1 || bottom > room.depthMm + 1)
+      issues.push(module.id + ' extends beyond the measured room boundary.');
   }
   if (verticalZones.totalStackMm > room.heightMm)
     issues.push('Counter + backsplash gap + wall unit + loft exceed the room height.');
