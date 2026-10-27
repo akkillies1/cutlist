@@ -12,7 +12,7 @@ Interior design-to-manufacturing software connecting 2D drawings, 3D visualizati
 
 **[Open the complete User Field Guide](docs/USER_GUIDE.md)** — start-to-finish workflow, workspace instructions, 2D/3D parity checks, drawing extraction, materials and hardware, local saving and backups, troubleshooting, and the release checklist.
 
-The same guide is available inside the app under **User Guide**. Actual application screenshots are referenced in the manual.
+The public product site is the homepage. Open the workspace at `/app/`; the full guide is available at `/guide.html`. Actual application screenshots are referenced in the manual.
 
 ## Important manufacturing note
 
