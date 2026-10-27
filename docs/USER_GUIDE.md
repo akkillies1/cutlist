@@ -28,7 +28,7 @@ Use the guided wizard in sequence:
 
 If the wizard blocks progression, read the inline error and correct the named field. Do not enter guessed values just to continue.
 
-![Actual Design Studio interface](https://dcode-cutting-list.hatchable.site/guide-assets/01-design-studio.jpg)
+![Actual Design Studio interface](../screenshots/01-design-studio.jpg)
 
 ## 2. Panel Geometry — one panel
 
@@ -36,7 +36,7 @@ Use **Dimensions** for a rectangular panel or **3-point geometry** for a panel d
 
 **Add panel to Cutlist** sends an unapproved proposal. Check the material, grain, edge treatment and finished-versus-cut-size convention before approving the row.
 
-![Actual Panel Geometry interface](https://dcode-cutting-list.hatchable.site/guide-assets/02-panel-geometry.jpg)
+![Actual Panel Geometry interface](../screenshots/02-panel-geometry.jpg)
 
 ## 3. Assembly Builder — multi-panel assembly
 
@@ -44,13 +44,13 @@ Choose a preset (wardrobe carcass, mirror wardrobe, TV console or empty assembly
 
 Board panels transfer to the board cut list; mirror, glass and hardware belong to separate schedules. A zero-intersection report does **not** prove joinery, screw positions, pilot holes, connector locations or hardware compliance.
 
-![Actual Assembly Builder 3D interface](https://dcode-cutting-list.hatchable.site/guide-assets/03-assembly-3d.jpg)
+![Actual Assembly Builder 3D interface](../screenshots/03-assembly-3d.jpg)
 
 ## 4. Manufacturing Cutlist — part-by-part review
 
 Treat this as a manufacturing review queue. Check dimensions and quantity first, then material and finishing data. Unknowns must remain marked for verification. Fill all fields affecting manufacture on manual rows. Before export, confirm the list is current and includes only the intended source rows.
 
-![Actual Manufacturing Cutlist interface](https://dcode-cutting-list.hatchable.site/guide-assets/04-manufacturing-cutlist.jpg)
+![Actual Manufacturing Cutlist interface](../screenshots/04-manufacturing-cutlist.jpg)
 
 ## 5. Cutting List Preparator — existing drawings
 
