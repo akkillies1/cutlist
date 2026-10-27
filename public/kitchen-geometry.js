@@ -149,6 +149,17 @@ export function validateKitchenGeometry(model, input = {}) {
     if (module.xMm < -1 || module.yMm < -1 || right > room.widthMm + 1 || bottom > room.depthMm + 1)
       issues.push(module.id + ' extends beyond the measured room boundary.');
   }
+  const placed = model.positionedModules || [];
+  for (let i = 0; i < placed.length; i++) {
+    const a = placed[i];
+    for (let j = i + 1; j < placed.length; j++) {
+      const b = placed[j];
+      const overlapX = Math.min(a.xMm + a.widthMm, b.xMm + b.widthMm) - Math.max(a.xMm, b.xMm);
+      const overlapY = Math.min(a.yMm + a.depthMm, b.yMm + b.depthMm) - Math.max(a.yMm, b.yMm);
+      if (overlapX > 1 && overlapY > 1)
+        issues.push(a.id + ' overlaps ' + b.id + ' by ' + Math.round(overlapX) + ' × ' + Math.round(overlapY) + ' mm in plan.');
+    }
+  }
   if (verticalZones.totalStackMm > room.heightMm)
     issues.push('Counter + backsplash gap + wall unit + loft exceed the room height.');
   const doorWidth = positive(input.doorWidth), doorOffset = positive(input.doorOffset);
