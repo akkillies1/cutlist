@@ -645,11 +645,11 @@ function render2D(){
 }
 async function render3D(){
  const token=++renderToken,host=$d('#design3d');if(!host)return;
- if(!val('width')||!val('height')||!val('depth')||!val('board')||!val('shelfBoard')||!val('doorBoard')||!val('back')||val('width')<=2*val('board')){if(sceneState?.renderer){sceneState.renderer.dispose();sceneState=null;}host.innerHTML='<div style="padding:20px;font-size:10px;color:#765c26">Enter valid cabinet dimensions to render the 3D preview.</div>';return;}
+ if(!val('width')||!val('height')||!val('depth')||!val('board')||!val('shelfBoard')||!val('doorBoard')||!val('back')||val('width')<=2*val('board')){if(sceneState?.resizeObserver)sceneState.resizeObserver.disconnect();if(sceneState?.renderer){sceneState.renderer.dispose();sceneState=null;}host.innerHTML='<div style="padding:20px;font-size:10px;color:#765c26">Enter valid cabinet dimensions to render the 3D preview.</div>';return;}
  try{
   const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
   if(token!==renderToken)return;
-  if(sceneState?.renderer){sceneState.renderer.dispose();sceneState=null;}host.innerHTML='';
+  if(sceneState?.resizeObserver)sceneState.resizeObserver.disconnect();if(sceneState?.renderer){sceneState.renderer.dispose();sceneState=null;}host.innerHTML='';
   host.innerHTML='<canvas aria-label="Interactive 3D cabinet preview"></canvas><span class="design-chip" style="position:absolute;left:9px;top:9px">3D PREVIEW · drag to orbit · scroll to zoom</span><span class="design-chip design-visual-only" style="position:absolute;right:9px;top:9px">VISUAL ONLY · 2D CONTROLS MANUFACTURING</span>';
   const canvas=host.querySelector('canvas'),w=Math.max(host.clientWidth,280),h=Math.max(host.clientHeight,260);
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(w,h,false);renderer.setClearColor(0xf2f3ef,1);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
