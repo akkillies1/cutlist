@@ -132,9 +132,12 @@ export function validateKitchenGeometry(model, input = {}) {
   const islandEnabled = input.islandEnabled !== false;
   if (baseEnabled && dimensions.runA <= 0) issues.push('Run A needs a positive measured length.');
   if (baseEnabled && dimensions.runA > room.widthMm) issues.push('Run A exceeds the measured room width.');
+  if (baseEnabled && layout === 'parallel' && dimensions.runB > room.widthMm) issues.push('The opposing run exceeds the measured room width.');
+  if (baseEnabled && ['l','u','c'].includes(layout) && dimensions.runA <= dimensions.baseDepthMm) issues.push('Run A must exceed the base cabinet depth to leave a usable straight section beyond the corner.');
+  if (baseEnabled && ['l','u','c'].includes(layout) && dimensions.runB <= dimensions.baseDepthMm) issues.push('Run B must exceed the base cabinet depth to provide a usable return beyond the corner.');
   if (baseEnabled && ['l','u','c'].includes(layout) && dimensions.runB > room.depthMm) issues.push('Run B exceeds the measured room depth.');
   if (baseEnabled && ['u','c'].includes(layout) && dimensions.runC > room.depthMm) issues.push('Run C exceeds the measured room depth.');
-  if (baseEnabled && ['u','c'].includes(layout) && dimensions.runC <= 0) issues.push('A three-run layout needs a measured third run.');
+  if (baseEnabled && ['u','c'].includes(layout) && dimensions.runC <= dimensions.baseDepthMm) issues.push('A three-run layout needs a third run longer than the base cabinet depth.');
   if (baseEnabled && layout === 'parallel' && room.depthMm - 2 * dimensions.baseDepthMm < positive(input.aisle ?? 1000))
     issues.push('The opposing-run aisle is below the entered target before handles and open doors.');
   if (islandEnabled && layout === 'peninsula' && dimensions.peninsulaLengthMm + (baseEnabled ? dimensions.baseDepthMm : 0) > room.depthMm)
