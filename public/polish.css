@@ -1,4 +1,8 @@
 /* DCODE Low Balance — interface refinement. Geometry and manufacturing logic remain untouched. */
+/* Brand hierarchy: LOW BALANCE is the product name; DCODE Interiors is the maker. */
+.header-brand-copy strong{font-size:15px!important;letter-spacing:.12em!important}
+.header-brand-copy small{font-size:8px!important;letter-spacing:.10em!important}
+@media(max-width:420px){.header-brand-copy strong{font-size:12px!important;letter-spacing:.08em!important}.header-brand-copy small{font-size:7px!important}}
 :root{
   --ink:#20231f;--muted:#73786f;--line:#e3e5de;--paper:#f5f6f2;--white:#fff;
   --accent:#b9d96c;--accent-ink:#354128;--panel-shadow:0 12px 32px rgba(25,31,23,.045);
@@ -180,7 +184,52 @@ main{margin-left:0!important;padding:0 clamp(16px,3vw,48px)!important;max-width:
   .notice{font-size:10px;line-height:1.6}
   footer{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:18px 2px}
 }
+/* Guided designer: compact mobile controls without hiding the current step's primary task. */
+.design-wizard{min-width:0}
+.design-wizard-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.design-wizard-track{display:flex;gap:5px;align-items:center}
+.design-wizard-track span{display:block;width:7px;height:7px;border-radius:99px;background:#d8dcd2}
+.design-wizard-track span.active{width:19px;background:#637b43}
+.design-wizard-track span.done{background:#a8c77a}
+.design-wizard-panel{min-width:0}
+.design-wizard-footer{display:flex;align-items:center;gap:9px}
+.design-wizard-footer #designWizardError{flex:1;min-width:0;font-size:11px;line-height:1.4}
+@media(max-width:760px){
+  .design-start-card{padding:15px!important;gap:12px!important}
+  .design-start-steps{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  .design-wizard{padding:12px!important;border-radius:10px!important}
+  .design-wizard-top{gap:8px}
+  .design-wizard-top small{font-size:9px}
+  .design-wizard-top strong{font-size:11px}
+  .design-wizard-heading{margin:12px 0!important}
+  .design-wizard-heading h4{font-size:17px!important;margin-bottom:4px}
+  .design-wizard-heading p{font-size:11px!important;line-height:1.5!important}
+  .design-wizard-panel{display:grid;gap:10px}
+  .design-wizard-panel>div,.design-wizard-panel>section{min-width:0}
+  .design-wizard-panel .design-field-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+  .design-wizard-panel label{min-width:0;overflow-wrap:anywhere;font-size:11px}
+  .design-wizard-panel input,.design-wizard-panel select,.design-wizard-panel textarea{width:100%;min-width:0;max-width:100%;font-size:16px!important}
+  .design-wizard-panel .design-kitchen-advanced{border:1px solid #e1e5dc;border-radius:9px;background:#fff;overflow:hidden}
+  .design-wizard-panel .design-kitchen-advanced>summary{padding:13px 12px;font-size:12px;font-weight:750;line-height:1.4;cursor:pointer;list-style-position:inside}
+  .design-wizard-panel .design-kitchen-advanced[open]>summary{border-bottom:1px solid #e8ebe4}
+  .design-wizard-panel .design-kitchen-advanced #designKitchenPlan{padding:12px}
+  .design-wizard-panel #roomPlannerApp{min-width:0;max-width:100%;overflow-x:hidden}
+  .design-wizard-panel .design-room-planner>p{font-size:11px;line-height:1.5}
+  .design-wizard-footer{position:sticky;bottom:0;z-index:20;margin:12px -12px -12px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(250,251,248,.97);border-top:1px solid #e0e4da;backdrop-filter:blur(10px)}
+  .design-wizard-footer button{min-height:44px}
+  .design-wizard-footer #designWizardBack{flex:0 0 82px}
+  .design-wizard-footer #designWizardNext{flex:1}
+  .design-wizard-footer #designWizardError{max-width:36%;font-size:10px}
+  .design-controls{gap:11px!important}
+  .design-divider{margin:3px 0!important}
+}
 @media(max-width:420px){
+  .design-wizard-track{gap:3px}
+  .design-wizard-track span{width:5px;height:5px}
+  .design-wizard-track span.active{width:15px}
+  .design-wizard-panel .design-field-grid{gap:7px!important}
+  .design-wizard-footer #designWizardBack{flex-basis:68px}
+  .design-wizard-footer #designWizardError{max-width:31%}
   main{padding-inline:10px!important}
   .header-brand-mark{width:30px;height:30px}
   .header-brand-copy strong{font-size:11px;letter-spacing:.12em}
@@ -198,9 +247,3 @@ main{margin-left:0!important;padding:0 clamp(16px,3vw,48px)!important;max-width:
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .panel{padding:10px}
 }
-
-/* Product identity: LOW BALANCE is the product; DCODE Interiors is the maker. */
-.brand strong{font-size:15px;letter-spacing:.12em}
-.header-brand-copy strong{font-size:15px!important;letter-spacing:.12em!important}
-.header-brand-copy small{font-size:8px!important;letter-spacing:.1em!important}
-@media(max-width:420px){.header-brand-copy strong{font-size:12px!important;letter-spacing:.08em!important}.header-brand-copy small{font-size:7px!important}}
