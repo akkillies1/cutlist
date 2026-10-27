@@ -1,14 +1,20 @@
-# DCODE Cutting List Preparator
+# DCODE Low Balance
 
-Browser-based tool for extracting candidate panel dimensions from drawings and preparing interior-design cut lists.
+**Precision Engineered Luxury**
+
+Interior design-to-manufacturing software connecting 2D drawings, 3D visualization, parametric cabinet engineering, material-aware cut lists and cost-conscious production preparation.
+
+**Product:** DCODE Low Balance  
+**Product domain:** https://lb.dcodeinteriors.com  
+**Brand:** DCODE Interiors
 
 ## User manual
 
 **[Open the complete User Field Guide](docs/USER_GUIDE.md)** — start-to-finish workflow, workspace instructions, 2D/3D parity checks, drawing extraction, materials and hardware, local saving and backups, troubleshooting, and the release checklist.
 
-The same guide is intended to be available inside the app under **User Guide**. Actual application screenshots are referenced in the manual.
+The same guide is available inside the app under **User Guide**. Actual application screenshots are referenced in the manual.
 
-## Important
+## Important manufacturing note
 
 - Imported dimensions are candidates until checked against the original drawing.
 - A rendered 2D/3D preview or a zero-intersection result is not manufacturing certification.
