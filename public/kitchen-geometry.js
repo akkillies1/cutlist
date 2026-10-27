@@ -146,6 +146,20 @@ export function validateKitchenGeometry(model, input = {}) {
     if (Math.abs(set.actualMm - set.expectedMm) > 1)
       issues.push(set.runId + ' module widths total ' + set.actualMm + ' mm; required usable length is ' + set.expectedMm + ' mm.');
   }
+  // Validate complete run footprints as well as individual modules. Islands and
+  // peninsulas currently have no module rows, so module-only checks miss them.
+  for (const run of model.runs || []) {
+    const x1 = Math.min(run.start.xMm, run.end.xMm);
+    const y1 = Math.min(run.start.yMm, run.end.yMm);
+    const x2 = Math.max(run.start.xMm, run.end.xMm);
+    const y2 = Math.max(run.start.yMm, run.end.yMm);
+    let left = x1, top = y1, right = x2, bottom = y2;
+    if (run.orientation === 'horizontal') { top = y1; bottom = y1 + run.depthMm; }
+    else if (run.orientation === 'vertical') { left = x1; right = x1 + run.depthMm; }
+    else if (run.orientation === 'island') { left = x1; top = y1; right = x2; bottom = y2; }
+    if (left < -1 || top < -1 || right > room.widthMm + 1 || bottom > room.depthMm + 1)
+      issues.push(run.id + ' footprint extends beyond the measured room boundary.');
+  }
   for (const module of model.positionedModules || []) {
     const right = module.xMm + module.widthMm;
     const bottom = module.yMm + module.depthMm;
