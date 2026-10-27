@@ -260,3 +260,25 @@ main{margin-left:0!important;padding:0 clamp(16px,3vw,48px)!important;max-width:
 #designProjectNameHelp{margin:6px 0 0;font-size:12px;line-height:1.5;color:#697165}
 .design-inline-error{margin:6px 0 0;color:#a33224;font-size:12px;line-height:1.45}
 #d-project[aria-invalid="true"]{border-color:#a33224!important;box-shadow:0 0 0 2px rgba(163,50,36,.12)}
+
+
+/* Step 2 — explicit project context, furniture identity and start mode. */
+.design-step2-context{display:grid;gap:12px;padding:14px;border:1px solid #e0e5d9;border-radius:11px;background:#fff;min-width:0}
+.design-step2-project{display:grid;gap:3px;padding:12px 13px;border-radius:8px;background:#f4f7ef;border:1px solid #e5eadc;min-width:0}
+.design-step2-project small{font-size:9px;font-weight:800;letter-spacing:.12em;color:#6d795f}
+.design-step2-project strong{font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+.design-step2-project span,.design-step2-start p{font-size:11px;color:#73786f;line-height:1.5}
+.design-step2-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;font-weight:750}
+.design-step2-flow span{padding:5px 8px;border:1px solid #e3e7dd;border-radius:6px;background:#fafbf8;overflow-wrap:anywhere}
+.design-step2-flow i{font-style:normal;color:#92988b}
+.design-inline-link{display:inline;border:0;background:transparent;color:#435d2c;text-decoration:underline;text-underline-offset:2px;padding:0;font:inherit;font-weight:750;cursor:pointer}
+.design-step2-start{display:grid;gap:10px;border-top:1px solid #e8ebe4;padding-top:12px}
+.design-step2-start>div:first-child strong{font-size:13px}
+.design-step2-start>div:first-child p{margin:3px 0 0}
+.design-step2-mode{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.design-step2-mode button{display:grid;gap:5px;text-align:left;align-content:start;padding:12px;border:1px solid #dfe4d8;border-radius:8px;background:#fff;color:#343a30;min-width:0}
+.design-step2-mode button.active{border-color:#718a52;background:#f4f7ef;box-shadow:inset 0 0 0 1px #718a52}
+.design-step2-mode button b{font-size:12px}
+.design-step2-mode button span{font-size:10px;line-height:1.45;color:#747a70}
+.design-wizard-panel input[aria-invalid="true"]{border-color:#b44c39!important;box-shadow:0 0 0 2px #b44c3920!important}
+@media(max-width:520px){.design-step2-context{padding:10px}.design-step2-mode{grid-template-columns:minmax(0,1fr)}.design-step2-mode button{padding:11px}.design-step2-project strong{font-size:14px}}
