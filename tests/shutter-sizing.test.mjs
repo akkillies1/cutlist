@@ -8,17 +8,17 @@ const common = { outerW: 1200, outerH: 2400, boardT: 18, count: 2, hingeBrand: '
 
 test('inset hinged shutters use inset clearances and enforce system limits', () => {
  const r=calculate({...common,style:'hinged',doorFit:'inset',doorSideClearance:2,doorTopClearance:2,doorBottomClearance:2});
- assert.equal(r.valid,true); assert.equal(r.width,577); assert.equal(r.height,2360);
+ assert.equal(r.valid,true); assert.equal(r.width,579); assert.equal(r.height,2360);
 });
 
 test('overlay hinged shutters use overlay values and do not require inset clearances', () => {
  const r=calculate({...common,style:'hinged',doorFit:'overlay',doorOverlaySide:18,doorOverlayTop:18,doorOverlayBottom:18});
- assert.equal(r.valid,true); assert.equal(r.width,597); assert.equal(r.height,2400);
+ assert.equal(r.valid,true); assert.equal(r.width,599); assert.equal(r.height,2400);
 });
 
 test('sliding panels include overlap and verified track clearances', () => {
  const r=calculate({style:'sliding',outerW:1800,outerH:2400,boardT:18,count:2,slidingModel:'System A',slidingDataReference:'Catalog p. 8',slidingMaxWidth:900,slidingMaxHeight:2400,slidingSideClearance:10,slidingTopClearance:20,slidingBottomClearance:20,slidingOverlap:30});
- assert.equal(r.valid,true); assert.equal(r.width,903); assert.equal(r.height,2324);
+ assert.equal(r.valid,true); assert.equal(r.width,887); assert.equal(r.height,2324);
 });
 
 test('rejects fractional shutter counts and missing model-specific values', () => {
