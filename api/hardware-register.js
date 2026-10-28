@@ -39,7 +39,14 @@ export default async function (req, res) {
   const body = req.body || {};
   if (body.action !== 'save' || !body.state || !body.state.current || !Array.isArray(body.state.current.items) || !Array.isArray(body.state.current.vendors))
     return res.status(400).json({ error: 'Expected a complete hardware register state.' });
-  const incoming = body.state, current = incoming.current, state = { schemaVersion: 2, current };
+  const incoming = body.state, current = incoming.current;
+  // Never reintroduce the legacy Test vendor through a crafted or stale client payload.
+  current.vendors = current.vendors.filter(v => String(typeof v === 'string' ? v : v?.name || '').trim().toLowerCase() !== 'test');
+  for (const item of current.items) {
+    if (item?.rates) delete item.rates.Test;
+    if (item?.quoteDetails) delete item.quoteDetails.Test;
+  }
+  const state = { schemaVersion: 2, current };
   if (sizeOf(state) > MAX_BYTES) return res.status(413).json({ error: 'Current register data is too large to save.' });
 
   const vendors = current.vendors.map(v => ({
@@ -66,10 +73,10 @@ export default async function (req, res) {
       discount: Math.max(0, Number(detail.discount) || 0), quotation_ref: String(detail.quotationRef || ''), notes: String(detail.notes || '') });
   }
 
-  const expectedUpdatedAt = body.expectedUpdatedAt ? String(body.expectedUpdatedAt) : null;
+  const expectedUpdatedAt = body.expectedUpdatedAt == null || String(body.expectedUpdatedAt).trim() === '' ? null : String(body.expectedUpdatedAt);
   const statements = [
     { sql: 'SELECT pg_advisory_xact_lock(741902611)' },
-    { sql: 'SELECT 1 / (CASE WHEN $1::timestamptz IS NULL OR NOT EXISTS (SELECT 1 FROM dcode_hardware_register_state WHERE id=TRUE) OR EXISTS (SELECT 1 FROM dcode_hardware_register_state WHERE id=TRUE AND updated_at=$1::timestamptz) THEN 1 ELSE 0 END) AS version_check', params: [expectedUpdatedAt] },
+    { sql: 'SELECT 1 / (CASE WHEN ($1::timestamptz IS NOT NULL AND EXISTS (SELECT 1 FROM dcode_hardware_register_state WHERE id=TRUE AND updated_at=$1::timestamptz)) OR ($1::timestamptz IS NULL AND NOT EXISTS (SELECT 1 FROM dcode_hardware_register_state WHERE id=TRUE)) THEN 1 ELSE 0 END) AS version_check', params: [expectedUpdatedAt] },
     { sql: "INSERT INTO dcode_hardware_register_revisions(version_no,status,note,payload,created_at) SELECT x.version,x.status,x.note,jsonb_build_object('current',x.data),COALESCE(x.createdAt,now()) FROM dcode_hardware_register_state s CROSS JOIN LATERAL jsonb_to_recordset(CASE WHEN jsonb_typeof(s.payload->'history')='array' THEN s.payload->'history' ELSE '[]'::jsonb END) AS x(version integer,status text,note text,data jsonb,createdAt timestamptz) WHERE s.id=TRUE AND NOT EXISTS (SELECT 1 FROM dcode_hardware_register_revisions r WHERE r.version_no=x.version) ON CONFLICT(version_no) DO NOTHING" },
     { sql: "INSERT INTO dcode_hardware_vendors(name,active,contact,email,phone,gstin,notes) SELECT x.name,x.active,x.contact,x.email,x.phone,x.gstin,x.notes FROM jsonb_to_recordset($1::jsonb) AS x(name text,active boolean,contact text,email text,phone text,gstin text,notes text) ON CONFLICT(name) DO UPDATE SET active=EXCLUDED.active,contact=EXCLUDED.contact,email=EXCLUDED.email,phone=EXCLUDED.phone,gstin=EXCLUDED.gstin,notes=EXCLUDED.notes,updated_at=now()", params: [JSON.stringify(vendors)] },
     { sql: "INSERT INTO dcode_hardware_items(id,description,category,model,primary_vendor_id,quantity,unit,gst_rate,online_purchase,purchase_url,notes,status) SELECT x.id,x.description,x.category,x.model,v.id,x.quantity,x.unit,x.gst_rate,x.online_purchase,x.purchase_url,x.notes,x.status FROM jsonb_to_recordset($1::jsonb) AS x(id text,description text,category text,model text,primary_vendor_name text,quantity numeric,unit text,gst_rate numeric,online_purchase boolean,purchase_url text,notes text,status text) LEFT JOIN dcode_hardware_vendors v ON v.name=NULLIF(x.primary_vendor_name,'') ON CONFLICT(id) DO UPDATE SET description=EXCLUDED.description,category=EXCLUDED.category,model=EXCLUDED.model,primary_vendor_id=EXCLUDED.primary_vendor_id,quantity=EXCLUDED.quantity,unit=EXCLUDED.unit,gst_rate=EXCLUDED.gst_rate,online_purchase=EXCLUDED.online_purchase,purchase_url=EXCLUDED.purchase_url,notes=EXCLUDED.notes,status=EXCLUDED.status,updated_at=now()", params: [JSON.stringify(items)] },
@@ -84,7 +91,10 @@ export default async function (req, res) {
   try {
     await db.transaction(statements);
   } catch (error) {
-    if (/division by zero/i.test(String(error))) return res.status(409).json({ error: 'The register changed in another tab or session. Reload the register before saving again.' });
+    if (/division by zero/i.test(String(error))) {
+      if (!expectedUpdatedAt) return res.status(428).json({ error: 'expectedUpdatedAt is required when saving an existing register. Reload the register before saving.' });
+      return res.status(409).json({ error: 'The register changed in another tab or session. Reload the register before saving again.' });
+    }
     throw error;
   }
   const saved = await db.query('SELECT updated_at FROM dcode_hardware_register_state WHERE id=TRUE');
