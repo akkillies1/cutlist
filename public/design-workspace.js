@@ -1,8 +1,8 @@
 import { buildKitchenGeometry, validateKitchenGeometry } from './kitchen-geometry.js?v=103';
-import { buildCabinetCarcassGeometry } from './cabinet-geometry.js?v=101';
+import { buildCabinetCarcassGeometry } from './cabinet-geometry.js?v=102';
 import { validateManufacturingSystemSpecs } from './manufacturing-system-validation.js?v=2';
-import { calculateShutterDimensions } from './shutter-sizing.js?v=1';
-import { calculateHingePlacement } from './hinge-placement.js?v=1';
+import { calculateShutterDimensions } from './shutter-sizing.js?v=2';
+import { calculateHingePlacement } from './hinge-placement.js?v=2';
 import { initPanelGeometry } from './panel-geometry-ui.js?v=100';
 import { initAssemblyStudio, getAssemblySnapshot } from './assembly-studio.js?v=102';
 import { initDesignTemplateAdvisor } from './design-template-advisor.js?v=100';
@@ -554,9 +554,9 @@ function addComponent(){
  const partitions=Math.max(0,Math.floor(val('partitions'))),innerShelfBay=Math.max(1,(W-2*T-partitions*T)/(partitions+1));const c={type,name:componentTypeLabels[type],width:type==='shelf'?Math.max(1,innerShelfBay):type==='partition'?Math.max(1,H-T):Math.max(1,W-2*T),height:type==='shutter'?H:type==='drawer'||type==='tandem'?180:type==='partition'?Math.max(1,H-T):type==='accessory'?0:ST,depth:type==='shutter'?D:Math.max(1,D-T),thickness:type==='shutter'?DT:type==='shelf'?ST:T,qty:1,note:type==='tandem'?'Tandem box / runner model and clearances must be verified':type==='drawer'?'Drawer box and runner clearances must be verified':type==='accessory'?'Specify exact brand, model and installation':'Verify final dimensions and edge band',rate:''};
  state.components=Array.isArray(state.components)?state.components:[];state.components.push(c);renderComponents();calc();
 }
-function doorSystemSizing(outerW,outerH,count,boardT,style){
+function doorSystemSizing(outerW,outerH,count,boardT,style,partitionCount=Number($d('#d-partitions')?.value??state.partitions??0)){
  const read=id=>String($d('#d-'+id)?.value??state[id]??'').trim();
- const specs={};
+ const specs={partitionCount,hasTopBoard:true,hasBottomBoard:true};
  ['hingeBrand','hingeModel','doorDataReference','doorFit','doorSideClearance','doorTopClearance','doorBottomClearance','doorMeetingGap','doorOverlaySide','doorOverlayTop','doorOverlayBottom','doorMaxWidth','doorMaxHeight','slidingModel','slidingDataReference','slidingSideClearance','slidingTopClearance','slidingBottomClearance','slidingOverlap','slidingMaxWidth','slidingMaxHeight'].forEach(k=>specs[k]=read(k));
  const result=calculateShutterDimensions({...specs,outerW,outerH,count,boardT,style});
  return result.valid?{width:result.width,height:result.height,error:''}:{width:0,height:0,error:result.issues.map(x=>x.message).join(' ')};
