@@ -48,8 +48,8 @@ export function buildCabinetCarcassGeometry(input = {}) {
     positionMm: Array.isArray(position) ? position[0] : position,
     positionsMm: Array.isArray(position) ? position : [position], orientation, sizingRule: rule
   });
-  add('SIDE-PAIR','carcass-side','Carcass side',heightMm,depthMm,boardMm,2,
-    [{x:0,y:0,z:0},{x:widthMm-boardMm,y:0,z:0}],'vertical-panel','Two full-height sides × full cabinet depth');
+  add('SIDE-PAIR','carcass-side','Carcass side',heightMm,internalDepthMm,boardMm,2,
+    [{x:0,y:0,z:0},{x:widthMm-boardMm,y:0,z:0}],'vertical-panel','Two full-height sides × internal depth; rear 6 mm reserved for the overlay back panel');
   add('TOP','carcass-top','Carcass top',innerWidthMm,internalDepthMm,boardMm,1,
     {x:boardMm,y:heightMm-boardMm,z:0},'horizontal-panel','Between side panels; depth stops at the rear face of the overlay back panel');
   add('BOTTOM','carcass-bottom','Carcass bottom',innerWidthMm,internalDepthMm,boardMm,1,
