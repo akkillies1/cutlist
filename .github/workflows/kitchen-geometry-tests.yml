@@ -3,6 +3,7 @@ name: Kitchen geometry regression tests
 on:
   push:
     branches:
+      - main
       - ui/low-balance-2d-3d-polish
   pull_request:
     branches:
