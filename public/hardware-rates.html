@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hardware Rate Register — DCODE</title>
+<meta name="description" content="Versioned supplier quotations and historical hardware rates for DCODE furniture projects.">
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#292b26;background:#f7f6f2;--line:#e5e3dc;--muted:#77786f;--ink:#292b26;--accent:#687c58;--panel:#fff;--soft:#f1f0ea}
+*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:7px;padding:9px 12px;background:#fff;color:var(--ink);font-weight:600;font-size:12px}button:hover{border-color:#a7ad9e}button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #a8ba91;outline-offset:2px}
+header{background:#f7f6f2;color:var(--ink);padding:15px clamp(14px,3vw,32px);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line)}header strong{letter-spacing:.16em;font-size:13px}header small{display:block;color:var(--muted);font-size:9px;letter-spacing:.1em;margin-top:4px}header a{color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:8px 11px;font-size:11px}
+main{max-width:1700px;margin:auto;padding:24px clamp(12px,2.5vw,32px) 60px}.eyebrow{font-size:10px;font-weight:750;letter-spacing:.14em;color:var(--muted)}h1{font-size:clamp(24px,3vw,34px);letter-spacing:-.045em;margin:8px 0;font-weight:650}h2{font-size:16px;letter-spacing:-.02em}p{color:var(--muted);line-height:1.6;font-size:12px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px;margin-top:14px}.topgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.metric{border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}.metric small{display:block;color:var(--muted);font-size:10px}.metric strong{display:block;font-size:clamp(16px,2vw,22px);margin-top:7px;overflow-wrap:anywhere;font-weight:650}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.toolbar label,.field{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}.toolbar input,.toolbar select,.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:6px;padding:8px;min-width:0;background:#fff;color:var(--ink)}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:12px}.table{border-collapse:separate;border-spacing:0;width:100%;min-width:1060px;background:#fff}.table th{position:sticky;top:0;background:#f5f4ef;color:#666a60;font-size:9px;text-align:left;letter-spacing:.06em;padding:11px 10px;border-bottom:1px solid var(--line);z-index:1;font-weight:750}.table td{padding:8px 9px;border-bottom:1px solid #efeee9;font-size:12px;vertical-align:middle}.table tr:last-child td{border-bottom:0}.table input,.table select{width:100%;min-width:68px;padding:7px;border:1px solid #e8e6df;border-radius:5px;background:#fff;font-size:11px;color:var(--ink)}.table .desc{min-width:190px}.table .qty{min-width:64px}.table .unit{min-width:70px}.table .rate{min-width:110px}.table .supplier{min-width:170px}.muted{color:var(--muted)}.tag{display:inline-flex;border-radius:4px;padding:4px 6px;font-size:9px;font-weight:700;background:#f0efe9;color:#55584f;white-space:nowrap}.tag.pending{background:#f5eedf;color:#785f31}.tag.ok{background:#e9eee4;color:#49613d}.tag.draft{background:#eeede8;color:#68685f}.tag.low{background:#e9eee4;color:#49613d}.warning{background:#f5f2e9;border:1px solid #e8e1d0;color:#665a42;border-radius:7px;padding:10px 12px;font-size:11px;line-height:1.6}.history{display:grid;grid-template-columns:1fr 1fr;gap:12px}.history ol{padding-left:20px;margin-bottom:0}.history li{margin:8px 0;font-size:11px}.empty{padding:20px;text-align:center;color:var(--muted)}.right{text-align:right;font-variant-numeric:tabular-nums}.footnote{font-size:10px;margin-top:10px}.smallbtn{padding:5px 7px;font-size:10px}.row-actions{display:flex;gap:5px;flex-wrap:wrap}.toolbar-main{justify-content:space-between}.toolbar-main .searchgroup{display:flex;gap:8px;flex:1;min-width:240px;flex-wrap:wrap}.toolbar-main .searchgroup label{flex:1;min-width:180px}.toolbar-main .searchgroup input{width:100%}.item-title{font-weight:650;line-height:1.4}.item-sub{color:var(--muted);font-size:10px;margin-top:3px}.rate-main{font-weight:700;font-variant-numeric:tabular-nums}.rate-sub{font-size:9px;color:var(--muted);margin-top:3px}.supplier-cell{min-width:180px}.supplier-cell select{font-weight:600}.modal-backdrop{position:fixed;inset:0;background:#20231f66;display:none;align-items:center;justify-content:center;padding:16px;z-index:100}.modal-backdrop.open{display:flex}.modal{background:#fff;border:1px solid var(--line);border-radius:12px;width:min(560px,100%);max-height:90vh;overflow:auto;padding:20px}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.modal-head h2{margin:0}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}.field{display:flex;flex-direction:column;align-items:stretch;gap:5px}.field input,.field select,.field textarea{width:100%;font-size:12px}.field.full{grid-column:1/-1}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.quote-list{display:grid;gap:7px;margin-top:12px}.quote-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:7px;padding:10px}.quote-row small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.quote-row strong{font-variant-numeric:tabular-nums}.quote-row button{padding:6px 8px}.empty-note{padding:12px;background:var(--soft);border-radius:7px;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:760px){.topgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.history{grid-template-columns:1fr}main{padding-top:16px}.panel{padding:11px}.toolbar{align-items:stretch}.toolbar label{flex-wrap:wrap}.formgrid{grid-template-columns:minmax(0,1fr)}.field.full{grid-column:auto}.toolbar-main .searchgroup{min-width:100%}.toolbar-main .searchgroup label{min-width:100%}.modal{padding:15px}}
+</style>
+</head>
+<body>
+<header><div><strong>DCODE INTERIORS</strong><small>HARDWARE RATE REGISTER · DESIGN TO PROCUREMENT</small></div><a href="/app/">← Back to Furniture Designer</a></header>
+<main>
+<div class="eyebrow">PROCUREMENT SUPPORT · VERSIONED REFERENCE DATA</div>
+<h1>Hardware Rate Register</h1>
+<p>Design first; verify commercial rates when quotations arrive. Each item defaults to its lowest entered quote, with a manual vendor override. Recommendations are indicative until the exact model, unit and quotation are verified.</p>
+<div class="warning"><strong>Draft baseline:</strong> October 2026 prices are historical comparison inputs, not sanctioned rates. This prototype saves revisions in this browser only. Export a JSON backup before changing devices or browsers.</div>
+<section class="panel">
+ <div class="topgrid">
+  <div class="metric"><small>Register revision</small><strong id="versionMetric">V1 · Draft</strong></div>
+  <div class="metric"><small>Items in register</small><strong id="itemMetric">35</strong></div>
+  <div class="metric"><small>Awaiting a price</small><strong id="pendingMetric">—</strong></div>
+  <div class="metric"><small>Selected subtotal · before GST</small><strong id="subtotalMetric">—</strong></div>
+ </div>
+ <div class="toolbar" style="margin-top:13px">
+  <label>Quotation baseline <input id="quoteDate" value="October 2026" aria-label="Quotation baseline date"></label>
+  <label>GST % <input id="gstRate" type="number" min="0" max="100" step="0.1" value="18" style="width:74px"></label>
+  <label>Version status <select id="versionStatus"><option value="Draft">Draft</option><option value="Under review">Under review</option><option value="Sanctioned">Sanctioned</option><option value="Superseded">Superseded</option></select></label>
+  <button id="saveVersion" class="primary">Save new version</button>
+  <button id="exportCsv">Export CSV</button><button id="exportJson">Export JSON backup</button>
+  <button id="restoreVersion">Restore as new draft</button>
+  <label>History <select id="historySelect" aria-label="Select historical version"></select></label>
+ </div>
+ <p class="footnote">Changes are held as a working draft until saved as a new version. A version restore never deletes history. Browser-only status labels do not authenticate approvers.</p>
+</section>
+<section class="panel">
+ <div class="toolbar toolbar-main">
+  <div class="searchgroup"><label>Search items or vendors <input id="search" placeholder="Search hardware, model, vendor…"></label><label>Show <select id="viewFilter"><option value="all">All items</option><option value="missing">Items with no quotes</option><option value="override">Manual vendor selections</option></select></label></div>
+  <div class="row-actions"><button id="manageVendors">Manage vendors</button><button id="addVendor">+ Add vendor</button><button id="addItem" class="primary">+ Add item</button></div>
+ </div>
+ <div class="tablewrap"><table class="table"><thead><tr><th>Item / description</th><th>Exact model / SKU</th><th>Qty</th><th>Unit</th><th>Vendor · default lowest quote</th><th>Rate · ₹ before GST</th><th>Line total · ₹</th><th>Quotation / verification notes</th><th>Status</th><th>Quotes</th></tr></thead><tbody id="rows"></tbody></table></div>
+ <p class="footnote">Only one vendor and one rate are shown per row, regardless of the number of vendors. The default is the lowest non-blank entered quote. Because imported rates and model matches are not yet sanctioned, the recommendation is provisional; verify compatibility and quotation evidence before procurement. Blank rates are never treated as zero. New items start at quantity 1.</p>
+</section>
+<section class="panel history">
+ <div><h2>Version history</h2><ol id="historyList"></ol></div>
+ <div><h2>Procurement summary</h2><div id="procurementSummary" class="muted" style="font-size:11px;line-height:1.9"></div><p class="footnote">A manual vendor choice is retained when new rates are entered. Switch an item back to “Auto · lowest quote” to resume automatic selection.</p></div>
+</section>
+</main>
+<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><div class="modal-head"><h2 id="modalTitle">Add item</h2><button id="closeModal" aria-label="Close">✕</button></div><form id="modalForm"><div id="modalFields" class="formgrid"></div><div class="modal-actions"><button type="button" id="cancelModal">Cancel</button><button type="submit" class="primary" id="submitModal">Add item</button></div></form></div></div>
+<script>
+(function(){
+const KEY='dcode-hardware-rate-register-v1';
+const BASE_SUPPLIERS=['Hardware Gallery','Green Decor','Signature Hardwares'];
+const seed=[
+['Tandembox 8" (Hettich Innotech 470mm)',4,'set',4007.86,4609.32,4537.29],
+['Telescopic channel 500mm soft close',8,'set',760,751.69,881.36],
+['Telescopic channel 400mm soft close',3,'set',700,724.58,811.86],
+['Telescopic channel 350mm soft close',11,'set',675,666.95,783.05],
+['0 Crank hinges soft close',114,'set',222.20,226.27,242.37],
+['8/9.5 Crank hinges soft close',11,'set',244.20,237.29,257.63],
+['PVC leg 100mm',104,'nos',30,32.50,26.04],
+['L gola profile',3,'length',1478.40,1771.19,1549.15],
+['C gola profile',1,'length',1862.40,2231.36,1956.78],
+['Gola fittings',30,'nos',29.61,33.90,20.77],
+['Aventos bi folding',1,'set',null,5408.47,null],
+['Push to open',11,'nos',78,481.36,46.23],
+['Waste bin holder',1,'set',2098.80,2505.08,664.31],
+['Gtpt - 900mm (Cargo Drainer)',1,'set',3794.80,4364.41,4654],
+['Adj. shelf pin',52,'nos',11.70,9.32,2.48],
+['Bottle pullout with slider 200mm',1,'set',2806.96,3414.41,3480],
+['Wide angle hinges soft close',2,'set',1072.60,1253.39,1159.32],
+['Honeycomb rod / Wall shelf rod',10,'nos',null,59.25,52.93],
+['Lift up (Pro lift)',2,'set',233.70,297.46,257.63],
+['Carousel',1,'set',19248.90,22136.44,6511.43],
+['Knob',28,'nos',122.40,88.14,39],
+['Hanging rod',4,'nos',455,888.98,1010.17],
+['Hanging rod clip / Bracket',26,'pcs',77,27.12,33.15],
+['Aluminium grill',18,'nos',106.60,113.56,136.44],
+['5-8 Screw (CSK 16x6)',700,'nos',1.38,.68,.92],
+['1" Screw dry wall',500,'nos',.49,.40,.41],
+['1-1/4" Screw dry wall',500,'nos',.67,.56,.56],
+['2" Screw dry wall',500,'nos',.90,.81,.81],
+['Fisher plug 6mm',200,'nos',.55,.46,.31],
+['Silicon white',3,'nos',235.60,130,189.83],
+['Silicon clear',2,'nos',235.60,130,194.92],
+['Wudfill',3,'nos',120,81.36,105.09],
+['Minifix set (Factory hardware)',612,'set',null,10.87,null],
+['Wooden Dowel (Factory hardware)',828,'nos',null,.75,null],
+['Cotton waste',1,'kg',null,null,278.10]
+];
+const $=s=>document.querySelector(s),clone=x=>JSON.parse(JSON.stringify(x));
+const fmt=n=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const now=()=>new Date().toISOString();
+function initialItems(){return seed.map((r,i)=>({id:'HW-'+String(i+1).padStart(3,'0'),description:r[0],qty:r[1],unit:r[2],rates:{[BASE_SUPPLIERS[0]]:r[3],[BASE_SUPPLIERS[1]]:r[4],[BASE_SUPPLIERS[2]]:r[5]},selectedSupplier:'',selectionMode:'auto',model:'',quotationRefs:{},notes:'',status:'Historical quote · unverified'}));}
+function makeInitial(){const data={schemaVersion:1,quoteDate:'October 2026',gstRate:18,status:'Draft',vendors:BASE_SUPPLIERS.map(name=>({name,active:true,contact:'',email:'',phone:'',gstin:'',notes:''})),items:initialItems()};return {schemaVersion:1,current:data,history:[{version:1,createdAt:now(),status:'Draft',note:'Initial import from supplied October 2026 comparison list; not yet sanctioned.',data:clone(data)}],nextVersion:2};}
+let store;try{store=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){store=null;}
+if(!store||!store.current||!Array.isArray(store.history)){store=makeInitial();persist();}
+function vendors(data=draft){let vs=Array.isArray(data.vendors)?data.vendors.map(v=>typeof v==='string'?{name:v,active:true}:v):[];const names=new Set(vs.map(v=>v.name));for(const n of BASE_SUPPLIERS)if(!names.has(n)){vs.push({name:n,active:true,contact:'',email:'',phone:'',gstin:'',notes:''});names.add(n);}return vs;}
+function ensureShape(data){if(!Array.isArray(data.vendors))data.vendors=BASE_SUPPLIERS.map(name=>({name,active:true,contact:'',email:'',phone:'',gstin:'',notes:''}));data.vendors=vendors(data);if(!Array.isArray(data.items))data.items=[];data.items.forEach(it=>{it.rates=it.rates||{};if(!it.selectionMode)it.selectionMode=it.selectedSupplier?'manual':'auto';if(it.qty===undefined||it.qty===null||it.qty==='')it.qty=1;if(!it.unit)it.unit='nos';});return data;}
+store.current=ensureShape(store.current);store.history.forEach(h=>{if(h.data)ensureShape(h.data);});persist();
+let draft=clone(store.current),dirty=false,modalMode='item',quoteItemId=null;
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));return true;}catch(e){alert('Could not save to browser storage. Export a JSON backup and reduce stored data.');return false;}}
+function activeVendors(){return vendors().filter(v=>v.active!==false).map(v=>v.name);}
+function rateFor(it,name){const v=it.rates?.[name];return v===null||v===undefined||v===''||!Number.isFinite(Number(v))||Number(v)<0?null:Number(v);}
+function lowestVendor(it){const list=activeVendors().map(name=>({name,rate:rateFor(it,name)})).filter(x=>x.rate!==null);list.sort((a,b)=>a.rate-b.rate||a.name.localeCompare(b.name));return list[0]||null;}
+function syncAutoSelection(it){if(it.selectionMode!=='manual'){const low=lowestVendor(it);it.selectedSupplier=low?low.name:'';}}
+function syncAllAuto(){draft.items.forEach(syncAutoSelection);}
+function lineTotal(it){const r=it.selectedSupplier?rateFor(it,it.selectedSupplier):null;return r===null?null:Number(it.qty||0)*r;}
+function markDirty(){dirty=true;$('#versionMetric').textContent='V'+store.nextVersion+' · Unsaved draft';}
+function saveDraftToStore(){store.current=clone(draft);return persist();}
+function render(){
+ syncAllAuto();
+ $('#quoteDate').value=draft.quoteDate||'';$('#gstRate').value=draft.gstRate??18;$('#versionStatus').value=draft.status||'Draft';
+ const query=$('#search').value.trim().toLowerCase(),vf=$('#viewFilter').value;
+ const visible=draft.items.filter(it=>{const text=[it.description,it.model,it.notes,...Object.keys(it.rates)].join(' ').toLowerCase();const low=lowestVendor(it);return (!query||text.includes(query))&&(vf==='all'||(vf==='missing'?!low:(it.selectionMode==='manual')));});
+ $('#rows').innerHTML=visible.map(it=>{
+  const total=lineTotal(it),low=lowestVendor(it),selectedRate=it.selectedSupplier?rateFor(it,it.selectedSupplier):null;
+  const allMissing=!low,selectedIsLowest=!!(low&&it.selectedSupplier===low.name);
+  const options='<option value="">Awaiting quote</option>'+activeVendors().map(s=>{const r=rateFor(it,s);return '<option value="'+safe(s)+'" '+(it.selectedSupplier===s?'selected':'')+'>'+safe(s)+(r===null?' · no quote':' · '+fmt(r))+(low&&s===low.name?' · lowest':'')+'</option>';}).join('');
+  const status=allMissing?'<span class="tag pending">No quote</span>':(it.selectionMode==='manual'?'<span class="tag draft">Manual choice</span>':'<span class="tag low">Lowest quote · provisional</span>');
+  return '<tr><td><input class="desc" data-field="description" data-id="'+safe(it.id)+'" value="'+safe(it.description)+'" aria-label="Description"><div class="item-sub">'+safe(it.id)+'</div></td><td><input class="desc" data-field="model" data-id="'+safe(it.id)+'" value="'+safe(it.model||'')+'" placeholder="Confirm model / SKU" aria-label="Exact model or SKU"></td><td><input class="qty" type="number" min="0" step="any" data-field="qty" data-id="'+safe(it.id)+'" value="'+safe(it.qty)+'" aria-label="Quantity"></td><td><input class="unit" data-field="unit" data-id="'+safe(it.id)+'" value="'+safe(it.unit)+'" aria-label="Unit"></td><td class="supplier-cell"><select class="supplier" data-field="selectedSupplier" data-id="'+safe(it.id)+'" aria-label="Vendor for '+safe(it.description)+'">'+options+'</select><div class="rate-sub">'+(it.selectionMode==='manual'?'Manual selection · '+(selectedIsLowest?'also lowest quoted':'override active'):low?'Auto-selected lowest entered quote':'No available quote')+'</div></td><td class="right">'+(selectedRate===null?'<span class="tag pending">Not quoted</span>':'<div class="rate-main">'+fmt(selectedRate)+'</div>'+(selectedIsLowest?'<div class="rate-sub">Lowest entered</div>':''))+'</td><td class="right">'+(total===null?'<span class="muted">—</span>':fmt(total))+'</td><td><input class="desc" data-field="notes" data-id="'+safe(it.id)+'" value="'+safe(it.notes||'')+'" placeholder="Quote ref / verification note" aria-label="Quotation and verification notes"></td><td>'+status+'</td><td><button class="smallbtn" data-action="quotes" data-id="'+safe(it.id)+'">Compare</button></td></tr>';
+ }).join('')||'<tr><td colspan="10" class="empty">No matching hardware items.</td></tr>';
+ const priced=draft.items.map(it=>({it,total:lineTotal(it)})).filter(x=>x.total!==null),subtotal=priced.reduce((s,x)=>s+x.total,0),pending=draft.items.filter(it=>lineTotal(it)===null).length,gst=Math.max(0,Number(draft.gstRate)||0);
+ $('#versionMetric').textContent='V'+(store.history.at(-1)?.version||1)+' · '+(dirty?'Unsaved draft':draft.status||'Draft');
+ $('#itemMetric').textContent=draft.items.length;$('#pendingMetric').textContent=pending+' / '+draft.items.length;$('#subtotalMetric').textContent=fmt(subtotal);
+ $('#procurementSummary').innerHTML='<div><strong>'+priced.length+'</strong> item(s) have a selected vendor and price; <strong>'+pending+'</strong> are unpriced.</div><div>Selected subtotal before GST: <strong>'+fmt(subtotal)+'</strong></div><div>GST at '+gst.toFixed(2)+'% on priced lines: <strong>'+fmt(subtotal*gst/100)+'</strong></div><div>Priced lines including GST: <strong>'+fmt(subtotal*(1+gst/100))+'</strong></div><div>Automatic choices use the lowest entered active-vendor quote. Manual choices remain fixed until changed back to automatic.</div>';
+ renderHistory();
+}
+function renderHistory(){const select=$('#historySelect'),old=select.value;select.innerHTML=store.history.slice().reverse().map(h=>'<option value="'+h.version+'">V'+h.version+' · '+safe(h.status)+' · '+new Date(h.createdAt).toLocaleDateString()+'</option>').join('');if(old&&Array.from(select.options).some(o=>o.value===old))select.value=old;$('#historyList').innerHTML=store.history.slice().reverse().map(h=>'<li><strong>V'+h.version+' · '+safe(h.status)+'</strong><br><span class="muted">'+safe(new Date(h.createdAt).toLocaleString())+' — '+safe(h.note||'Rate-list revision')+'</span></li>').join('');}
+function saveNewVersion(note){syncAllAuto();if(!saveDraftToStore())return;const version=store.nextVersion++;store.current=clone(draft);store.history.push({version,createdAt:now(),status:draft.status||'Draft',note:note||'Saved editable rate-list revision.',data:clone(draft)});dirty=false;persist();render();alert('Saved Hardware Rate Register V'+version+'. Previous versions remain in history.');}
+function openModal(mode){modalMode=mode;$('#modalFields').innerHTML='';$('#modalTitle').textContent=mode==='item'?'Add hardware item':mode==='vendor'?'Add vendor':'Vendor directory';$('#submitModal').textContent=mode==='item'?'Add item':'Add vendor';$('#modalForm').style.display='block';$('#modalFields').innerHTML=mode==='item'
+ ?field('Item name','description','text','Required','full')+field('Exact model / SKU','model','text','Optional until design confirms')+field('Quantity','qty','number','1')+field('Unit','unit','text','nos')+field('Category','category','text','Optional')+field('Notes','notes','text','Quotation / specification notes','full')
+ :field('Vendor name','name','text','Required','full')+field('Contact person','contact','text','Optional')+field('Email','email','email','Optional')+field('Phone','phone','tel','Optional')+field('GSTIN','gstin','text','Optional')+field('Notes','notes','text','Commercial terms / lead time','full');
+ $('#modalBackdrop').classList.add('open');const first=$('#modalFields input');if(first)first.focus();
+}
+function field(label,name,type,placeholder,span){return '<label class="field '+(span==='full'?'full':'')+'">'+label+'<input name="'+name+'" type="'+type+'" '+(name==='qty'?'min="0" step="any" value="1"':'')+' placeholder="'+safe(placeholder||'')+'" '+(name==='description'||name==='name'?'required':'')+'></label>';}
+function closeModal(){$('#modalBackdrop').classList.remove('open');}
+$('#modalForm').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.currentTarget),get=k=>String(f.get(k)||'').trim();if(modalMode==='item'){const description=get('description');if(!description)return;const id='HW-'+String(Math.max(0,...draft.items.map(it=>Number((it.id.match(/(\d+)$/)||[])[1])||0))+1).padStart(3,'0');draft.items.push({id,description,qty:Math.max(0,Number(get('qty')||1)),unit:get('unit')||'nos',model:get('model'),category:get('category'),rates:{},selectedSupplier:'',selectionMode:'auto',quotationRefs:{},notes:get('notes'),status:'Awaiting quotation'});markDirty();closeModal();render();return;}
+ const name=get('name');if(!name)return;if(vendors().some(v=>v.name.toLowerCase()===name.toLowerCase())){alert('A vendor with that name already exists.');return;}draft.vendors.push({name,active:true,contact:get('contact'),email:get('email'),phone:get('phone'),gstin:get('gstin'),notes:get('notes')});draft.items.forEach(it=>{if(!(name in it.rates))it.rates[name]=null;});markDirty();closeModal();render();});
+function showQuotes(id){quoteItemId=id;const it=draft.items.find(x=>x.id===id);if(!it)return;$('#modalTitle').textContent='Supplier quotes · '+it.description;$('#modalFields').innerHTML='<div class="field full"><span>Enter or update rates for this item. Blank rates stay unquoted; values are GST-exclusive.</span></div><div class="field full"><div id="quoteList" class="quote-list">'+vendors().map(v=>{const r=rateFor(it,v.name),low=lowestVendor(it);return '<div class="quote-row"><div><strong>'+safe(v.name)+'</strong><small>'+(v.active===false?'Inactive vendor':'')+(low&&low.name===v.name?' · Lowest entered quote':'')+'</small></div><div style="display:flex;gap:6px;align-items:center"><input aria-label="'+safe(v.name)+' quote" data-quote-vendor="'+safe(v.name)+'" type="number" min="0" step="0.01" placeholder="Not quoted" value="'+(r===null?'':r)+'" style="width:120px;border:1px solid var(--line);border-radius:6px;padding:7px;font-size:12px"><button type="button" data-save-quote="'+safe(v.name)+'">Save rate</button></div></div>';}).join('')+'</div></div><div class="field full"><span>Exact model compatibility, pack size and quotation validity still require user verification. Changing a rate updates automatic recommendations, but not a manual vendor override.</span></div>';
+ $('#submitModal').style.display='none';$('#modalForm').style.display='block';$('#modalBackdrop').classList.add('open');
+ $('#quoteList').addEventListener('click',e=>{const b=e.target.closest('[data-save-quote]');if(!b)return;const vendor=b.dataset.saveQuote,input=$('[data-quote-vendor="'+CSS.escape(vendor)+'"]'),value=input.value.trim();it.rates[vendor]=value===''?null:Math.max(0,Number(value));syncAutoSelection(it);markDirty();render();showQuotes(id);});
+}
+$('#rows').addEventListener('input',e=>{const el=e.target,id=el.dataset.id;if(!el.dataset.field||!id)return;const it=draft.items.find(x=>x.id===id);if(!it)return;const key=el.dataset.field;if(key==='qty')it.qty=el.value===''?0:Math.max(0,Number(el.value));else if(key!=='selectedSupplier')it[key]=el.value;markDirty();});
+$('#rows').addEventListener('change',e=>{const el=e.target;if(el.dataset.action==='quotes'){showQuotes(el.dataset.id);return;}const it=draft.items.find(x=>x.id===el.dataset.id);if(!it)return;if(el.dataset.field==='selectedSupplier'){it.selectedSupplier=el.value;it.selectionMode=el.value?'manual':'auto';if(!el.value)syncAutoSelection(it);}else if(el.dataset.field){const k=el.dataset.field;it[k]=k==='qty'?Math.max(0,Number(el.value)||0):el.value;}markDirty();render();});
+$('#rows').addEventListener('click',e=>{const b=e.target.closest('[data-action="quotes"]');if(b)showQuotes(b.dataset.id);});
+$('#quoteDate').addEventListener('input',e=>{draft.quoteDate=e.target.value;markDirty();});
+$('#gstRate').addEventListener('input',e=>{draft.gstRate=Math.max(0,Math.min(100,Number(e.target.value)||0));markDirty();render();});
+$('#versionStatus').addEventListener('change',e=>{draft.status=e.target.value;markDirty();});
+['search','viewFilter'].forEach(id=>$('#'+id).addEventListener('input',render));
+$('#saveVersion').addEventListener('click',()=>{draft.quoteDate=$('#quoteDate').value;draft.gstRate=Number($('#gstRate').value)||0;draft.status=$('#versionStatus').value;saveNewVersion('Saved by user; quotation baseline '+draft.quoteDate+'; GST '+draft.gstRate+'% extra.');});
+$('#restoreVersion').addEventListener('click',()=>{const v=Number($('#historySelect').value),h=store.history.find(x=>x.version===v);if(!h)return;if(!confirm('Restore V'+v+' into the working draft? History will not be deleted. Save as a new version to record this restoration.'))return;draft=ensureShape(clone(h.data));dirty=true;render();});
+$('#addItem').addEventListener('click',()=>openModal('item'));$('#addVendor').addEventListener('click',()=>openModal('vendor'));
+$('#manageVendors').addEventListener('click',()=>{modalMode='directory';$('#modalTitle').textContent='Vendor directory';$('#modalForm').style.display='none';$('#modalFields').innerHTML='<div class="field full"><span>Manage active status. Inactive vendors remain in historical rates but are not selected automatically.</span></div>'+vendors().map((v,i)=>'<div class="quote-row" style="grid-column:1/-1"><div><strong>'+safe(v.name)+'</strong><small>'+safe(v.contact||v.email||v.phone||'No contact details')+'</small></div><div style="display:flex;gap:6px;align-items:center"><label style="display:flex;gap:5px;align-items:center;font-size:11px"><input type="checkbox" data-vendor-active="'+safe(v.name)+'" '+(v.active!==false?'checked':'')+'> Active</label></div></div>').join('');$('#modalBackdrop').classList.add('open');$('#modalFields').addEventListener('change',e=>{const name=e.target.dataset.vendorActive;if(!name)return;const v=draft.vendors.find(x=>x.name===name);if(v){v.active=e.target.checked;syncAllAuto();markDirty();render();}});$('#submitModal').style.display='none';});
+$('#closeModal').addEventListener('click',()=>{closeModal();$('#submitModal').style.display='';});$('#cancelModal').addEventListener('click',()=>{closeModal();$('#submitModal').style.display='';});$('#modalBackdrop').addEventListener('click',e=>{if(e.target===$('#modalBackdrop')){closeModal();$('#submitModal').style.display='';}});
+$('#exportCsv').addEventListener('click',()=>{const vs=vendors().map(v=>v.name);const rows=[['Item ID','Description','Model / SKU','Quantity','Unit','Selected vendor','Selected rate INR','Lowest quoted vendor','Lowest quoted rate INR',...vs.map(s=>s+' rate INR'),'Line total before GST','Quotation baseline','GST percent','Version status','Selection mode','Notes'],...draft.items.map(it=>{const low=lowestVendor(it);return [it.id,it.description,it.model,it.qty,it.unit,it.selectedSupplier,it.selectedSupplier?rateFor(it,it.selectedSupplier)??'':'',low?.name||'',low?.rate??'',...vs.map(s=>rateFor(it,s)??''),lineTotal(it)??'',draft.quoteDate,draft.gstRate,draft.status,it.selectionMode,it.notes];})];download('dcode-hardware-rates.csv',rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv;charset=utf-8');});
+$('#exportJson').addEventListener('click',()=>download('dcode-hardware-rate-register-backup.json',JSON.stringify({store,draft,exportedAt:now()},null,2),'application/json'));
+function download(name,data,type){const url=URL.createObjectURL(new Blob([data],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+render();
+})();
+</script>
+</body>
+</html>
