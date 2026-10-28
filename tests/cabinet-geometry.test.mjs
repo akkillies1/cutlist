@@ -65,3 +65,13 @@ test('rejects impossible narrow bays and non-numeric shelf counts', () => {
   assert.equal(nonNumeric.valid, false);
   assert.ok(nonNumeric.issues.some(issue => issue.includes('Shelf count must be a whole number')));
 });
+
+test('side panels stop at the overlay back instead of overlapping it', () => {
+  const model = build({ ...validInput, depth: 600, back: 6, partitions: 1 });
+  assert.equal(model.valid, true);
+  const sides = model.panels.find(p => p.id === 'SIDE-PAIR');
+  const back = model.panels.find(p => p.id === 'BACK');
+  assert.equal(sides.wMm, 594);
+  assert.equal(back.positionMm.z, 594);
+  assert.equal(sides.wMm, back.positionMm.z);
+});
