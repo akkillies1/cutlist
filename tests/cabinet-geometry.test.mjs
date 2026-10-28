@@ -45,3 +45,23 @@ test('equal-spaced shelves are bottom-up and strictly ordered', () => {
   assert.deepEqual([...model.shelfElevationsMm].sort((a, b) => a - b), model.shelfElevationsMm);
   assert.equal(new Set(model.shelfElevationsMm).size, 3);
 });
+
+
+test('correctly exposes 2364 mm inner height and reserves back-panel depth', () => {
+  const model = build({ ...validInput, width: 1800, height: 2400, depth: 600, board: 18, back: 6, shelves: 4, partitions: 1 });
+  assert.equal(model.valid, true);
+  assert.equal(model.innerHeightMm, 2364);
+  assert.equal(model.internalDepthMm, 594);
+  assert.equal(model.panels.find(p => p.id === 'TOP').wMm, 594);
+  assert.equal(model.panels.find(p => p.id === 'BOTTOM').wMm, 594);
+  assert.equal(model.panels.find(p => p.role === 'shelf').wMm, 594);
+});
+
+test('rejects impossible narrow bays and non-numeric shelf counts', () => {
+  const narrow = build({ ...validInput, width: 300, height: 2100, depth: 600, shelves: 2, partitions: 10 });
+  assert.equal(narrow.valid, false);
+  assert.ok(narrow.issues.some(issue => issue.includes('minimum 50 mm geometry limit')));
+  const nonNumeric = build({ ...validInput, shelves: 'many' });
+  assert.equal(nonNumeric.valid, false);
+  assert.ok(nonNumeric.issues.some(issue => issue.includes('Shelf count must be a whole number')));
+});
