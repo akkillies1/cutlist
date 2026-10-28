@@ -20,3 +20,5 @@ jobs:
           node-version: 22
       - name: Run kitchen geometry regression tests
         run: node --test tests/kitchen-geometry.test.mjs
+      - name: Run cabinet geometry regression tests
+        run: node --test tests/cabinet-geometry.test.mjs
