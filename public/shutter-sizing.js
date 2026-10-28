@@ -20,9 +20,10 @@ export function calculateShutterDimensions(input = {}) {
   let width,height,widthLimit,heightLimit;
   const required=(field,label,positive=false)=>{const v=numeric(input[field]);if(!Number.isFinite(v)||(positive?v<=0:v<0))add(field,label+(positive?' must be greater than zero.':' must be a finite, non-negative value; enter zero explicitly if applicable.'));return v;};
   const hasTopBoard=input.hasTopBoard===false?false:true, hasBottomBoard=input.hasBottomBoard===false?false:true;
-  const openingW=outerW-2*boardT-partitionCount*boardT;
+  const carcassOpeningW=outerW-2*boardT;
+  const insetOpeningW=carcassOpeningW-partitionCount*boardT;
   const openingH=outerH-(hasTopBoard?boardT:0)-(hasBottomBoard?boardT:0);
-  if(openingW<=0) add('partitionCount','Partitions and side panels leave no usable shutter width.');
+  if(carcassOpeningW<=0||insetOpeningW<=0) add('partitionCount','Partitions and side panels leave no usable shutter width.');
   if(openingH<=0) add('outerH','Top and bottom construction leave no usable shutter height.');
   if(style==='hinged'){
     if(!raw(input.hingeBrand)||!raw(input.hingeModel))add('hingeModel','Select the hinge brand and exact model.');
@@ -33,17 +34,17 @@ export function calculateShutterDimensions(input = {}) {
     const meeting=required('doorMeetingGap','Meeting gap');
     if(fit==='inset'){
       const side=required('doorSideClearance','Side clearance'),top=required('doorTopClearance','Top clearance'),bottom=required('doorBottomClearance','Bottom clearance');
-      width=(openingW-2*side-(count-1)*meeting)/count;height=openingH-top-bottom;
+      width=(insetOpeningW-2*side-(count-1)*meeting)/count;height=openingH-top-bottom;
     }else if(fit==='overlay'){
       const side=required('doorOverlaySide','Side overlay'),top=required('doorOverlayTop','Top overlay'),bottom=required('doorOverlayBottom','Bottom overlay');
-      width=(openingW+2*side-(count-1)*meeting)/count;height=openingH+top+bottom;
+      width=(carcassOpeningW+2*side-(count-1)*meeting)/count;height=openingH+top+bottom;
     }
   }else{
     if(!raw(input.slidingModel))add('slidingModel','Enter the exact sliding-track model or series.');
     if(!raw(input.slidingDataReference))add('slidingDataReference','Enter the sliding-track manufacturer datasheet or approved design reference.');
     widthLimit=required('slidingMaxWidth','Maximum sliding panel width',true);heightLimit=required('slidingMaxHeight','Maximum sliding panel height',true);
     const side=required('slidingSideClearance','Sliding side clearance'),top=required('slidingTopClearance','Sliding top clearance'),bottom=required('slidingBottomClearance','Sliding bottom clearance'),overlap=required('slidingOverlap','Sliding panel overlap');
-    width=(openingW-2*side+(count-1)*overlap)/count;height=openingH-top-bottom;
+    width=(carcassOpeningW-2*side+(count-1)*overlap)/count;height=openingH-top-bottom;
   }
   if(issues.length)return {valid:false,width:0,height:0,issues,schemaVersion:SHUTTER_SIZING_VERSION};
   if(!(width>0&&height>0))add('dimensions','The selected clearances produce a non-positive shutter size.');
