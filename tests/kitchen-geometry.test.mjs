@@ -28,7 +28,7 @@ test('L layout positions the return perpendicular to the main run', () => {
 });
 
 test('parallel runs flag an aisle below target', () => {
-  const input = { layout: 'parallel', roomW: 3600, roomD: 2200, runA: 3000, runB: 3000, baseDepth: 600, aisle: 1000 };
+  const input = { layout: 'parallel', roomW: 3600, roomD: 2100, runA: 3000, runB: 3000, baseDepth: 600, aisle: 1000 };
   assert.ok(validate(build(input), input).some(s => s.includes('aisle is below')));
 });
 
