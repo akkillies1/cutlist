@@ -1,6 +1,6 @@
 import { db } from 'hatchable';
 
-export const access = 'admin';
+export const access = 'public';
 export const methods = ['GET', 'POST'];
 const MAX_BYTES = 1500000;
 const sizeOf = value => { try { return new TextEncoder().encode(JSON.stringify(value)).length; } catch { return MAX_BYTES + 1; } };
@@ -11,6 +11,9 @@ export default async function (req, res) {
     if (!result.rows.length) return res.status(404).json({ error: 'Hardware register database has not been seeded.' });
     return res.status(200).json({ ok: true, state: result.rows[0].payload, updatedAt: result.rows[0].updated_at, storage: 'postgresql' });
   }
+  const origin = String(req.headers?.origin || req.headers?.Origin || '');
+  const allowedOrigins = new Set(['https://dcode-cutting-list.hatchable.site']);
+  if (origin && !allowedOrigins.has(origin)) return res.status(403).json({ error: 'Cross-origin register writes are not allowed.' });
   const body = req.body || {};
   if (body.action !== 'save' || !body.state || !body.state.current || !Array.isArray(body.state.current.items) || !Array.isArray(body.state.current.vendors)) {
     return res.status(400).json({ error: 'Expected a complete hardware register state.' });
@@ -32,6 +35,7 @@ export default async function (req, res) {
     description: String(it.description || '').trim(),
     category: String(it.category || 'Other'),
     model: String(it.model || ''),
+    primary_vendor_name: String(it.primaryVendor || ''),
     quantity: Math.max(0, Number(it.qty ?? it.quantity ?? 1) || 0),
     unit: String(it.unit || 'nos'),
     gst_rate: Math.min(100, Math.max(0, Number(it.gstRate ?? data.gstRate ?? 18))),
@@ -69,10 +73,11 @@ export default async function (req, res) {
     [JSON.stringify(vendors)]
   );
   await db.query(
-    `INSERT INTO dcode_hardware_items(id,description,category,model,quantity,unit,gst_rate,online_purchase,purchase_url,notes,status)
-     SELECT x.id,x.description,x.category,x.model,x.quantity,x.unit,x.gst_rate,x.online_purchase,x.purchase_url,x.notes,x.status
-     FROM jsonb_to_recordset($1::jsonb) AS x(id text,description text,category text,model text,quantity numeric,unit text,gst_rate numeric,online_purchase boolean,purchase_url text,notes text,status text)
-     ON CONFLICT(id) DO UPDATE SET description=EXCLUDED.description,category=EXCLUDED.category,model=EXCLUDED.model,quantity=EXCLUDED.quantity,unit=EXCLUDED.unit,gst_rate=EXCLUDED.gst_rate,online_purchase=EXCLUDED.online_purchase,purchase_url=EXCLUDED.purchase_url,notes=EXCLUDED.notes,status=EXCLUDED.status,updated_at=now()`,
+    `INSERT INTO dcode_hardware_items(id,description,category,model,primary_vendor_id,quantity,unit,gst_rate,online_purchase,purchase_url,notes,status)
+     SELECT x.id,x.description,x.category,x.model,v.id,x.quantity,x.unit,x.gst_rate,x.online_purchase,x.purchase_url,x.notes,x.status
+     FROM jsonb_to_recordset($1::jsonb) AS x(id text,description text,category text,model text,primary_vendor_name text,quantity numeric,unit text,gst_rate numeric,online_purchase boolean,purchase_url text,notes text,status text)
+     LEFT JOIN dcode_hardware_vendors v ON v.name=NULLIF(x.primary_vendor_name,'')
+     ON CONFLICT(id) DO UPDATE SET description=EXCLUDED.description,category=EXCLUDED.category,model=EXCLUDED.model,primary_vendor_id=EXCLUDED.primary_vendor_id,quantity=EXCLUDED.quantity,unit=EXCLUDED.unit,gst_rate=EXCLUDED.gst_rate,online_purchase=EXCLUDED.online_purchase,purchase_url=EXCLUDED.purchase_url,notes=EXCLUDED.notes,status=EXCLUDED.status,updated_at=now()`,
     [JSON.stringify(items)]
   );
   await db.query(
