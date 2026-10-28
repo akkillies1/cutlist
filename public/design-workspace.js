@@ -1,6 +1,7 @@
 import { buildKitchenGeometry, validateKitchenGeometry } from './kitchen-geometry.js?v=103';
 import { buildCabinetCarcassGeometry } from './cabinet-geometry.js?v=101';
 import { validateManufacturingSystemSpecs } from './manufacturing-system-validation.js?v=1';
+import { calculateShutterDimensions } from './shutter-sizing.js?v=1';
 import { initPanelGeometry } from './panel-geometry-ui.js?v=100';
 import { initAssemblyStudio, getAssemblySnapshot } from './assembly-studio.js?v=102';
 import { initDesignTemplateAdvisor } from './design-template-advisor.js?v=100';
@@ -512,47 +513,11 @@ function addComponent(){
  state.components=Array.isArray(state.components)?state.components:[];state.components.push(c);renderComponents();calc();
 }
 function doorSystemSizing(outerW,outerH,count,boardT,style){
- const raw=id=>String($d('#d-'+id)?.value??'').trim();
- const num=id=>raw(id)===''?NaN:Number(raw(id));
- const widthLimit=num(style==='sliding'?'slidingMaxWidth':'doorMaxWidth');
- const heightLimit=num(style==='sliding'?'slidingMaxHeight':'doorMaxHeight');
- if(style==='open')return {width:0,height:0,error:''};
- let width=0,height=0;
- if(style==='hinged'){
-  const brand=raw('hingeBrand'),model=raw('hingeModel'),fit=raw('doorFit');
-  if(!brand||brand==='Not selected'||!model)return {width:0,height:0,error:'Select a hinge brand and enter the exact hinge model before shutter dimensions can be calculated.'};
-  if(!raw('doorDataReference'))return {width:0,height:0,error:'Enter the hinge manufacturer datasheet / document reference before calculating shutter dimensions.'};
-  if(!['inset','overlay'].includes(fit))return {width:0,height:0,error:'Choose inset or overlay shutter construction before calculating shutter sizes.'};
-  const needed=fit==='inset'?['doorMaxWidth','doorMaxHeight','doorSideClearance','doorTopClearance','doorBottomClearance','doorMeetingGap']:['doorMaxWidth','doorMaxHeight','doorOverlaySide','doorOverlayTop','doorOverlayBottom','doorMeetingGap'];
-  const missing=needed.filter(id=>raw(id)==='');
-  if(missing.length)return {width:0,height:0,error:'Enter the manufacturer / design values for '+missing.map(id=>id.replace(/^door/,'').replace(/([A-Z])/g,' $1').toLowerCase()).join(', ')+'.'};
-  const invalid=needed.filter(id=>!Number.isFinite(num(id))||num(id)<0);if(invalid.length)return {width:0,height:0,error:'Manufacturer sizing values must be finite and non-negative: '+invalid.join(', ')+'.'};
-  if(!(widthLimit>0&&heightLimit>0))return {width:0,height:0,error:'Manufacturer maximum shutter width and height must both be greater than zero.'};
-  const openingW=Math.max(0,outerW-2*boardT),openingH=Math.max(0,outerH-2*boardT),meeting=num('doorMeetingGap');
-  if(fit==='inset'){
-   width=(openingW-2*num('doorSideClearance')-Math.max(0,count-1)*meeting)/count;
-   height=openingH-num('doorTopClearance')-num('doorBottomClearance');
-  }else{
-   width=(openingW+2*num('doorOverlaySide')-Math.max(0,count-1)*meeting)/count;
-   height=openingH+num('doorOverlayTop')+num('doorOverlayBottom');
-  }
- }else if(style==='sliding'){
-  const model=raw('slidingModel');
-  if(!model)return {width:0,height:0,error:'Enter the exact sliding-track model / series before calculating shutter dimensions.'};
-  if(!raw('slidingDataReference'))return {width:0,height:0,error:'Enter the sliding-track manufacturer datasheet / document reference before calculating shutter dimensions.'};
-  const needed=['slidingMaxWidth','slidingMaxHeight','slidingSideClearance','slidingTopClearance','slidingBottomClearance','slidingOverlap'];
-  const missing=needed.filter(id=>raw(id)==='');
-  if(missing.length)return {width:0,height:0,error:'Enter the manufacturer values for '+missing.map(id=>id.replace(/^sliding/,'').replace(/([A-Z])/g,' $1').toLowerCase()).join(', ')+'.'};
-  const invalid=needed.filter(id=>!Number.isFinite(num(id))||num(id)<0);if(invalid.length)return {width:0,height:0,error:'Sliding-system values must be finite and non-negative: '+invalid.join(', ')+'.'};
-  if(!(widthLimit>0&&heightLimit>0))return {width:0,height:0,error:'Manufacturer maximum shutter width and height must both be greater than zero.'};
-  const openingW=Math.max(0,outerW-2*boardT),openingH=Math.max(0,outerH-2*boardT);
-  width=(openingW-2*num('slidingSideClearance')+Math.max(0,count-1)*num('slidingOverlap'))/count;
-  height=openingH-num('slidingTopClearance')-num('slidingBottomClearance');
- }else return {width:0,height:0,error:'Unknown door system. Select hinged, sliding or open-front construction.'};
- if(!(width>0&&height>0))return {width:0,height:0,error:'The selected system clearances leave a non-positive shutter size. Review the exact manufacturer values and cabinet opening.'};
- if(!(widthLimit>0&&heightLimit>0))return {width:0,height:0,error:'Manufacturer maximum shutter width and height are required to validate the selected system.'};
- if(width>widthLimit||height>heightLimit)return {width:0,height:0,error:'Calculated shutter '+Math.round(width)+' × '+Math.round(height)+' mm exceeds the entered system limit '+widthLimit+' × '+heightLimit+' mm. Split the shutter or review the dimensions / chosen system.'};
- return {width:Math.round(width),height:Math.round(height),error:''};
+ const read=id=>String($d('#d-'+id)?.value??state[id]??'').trim();
+ const specs={};
+ ['hingeBrand','hingeModel','doorDataReference','doorFit','doorSideClearance','doorTopClearance','doorBottomClearance','doorMeetingGap','doorOverlaySide','doorOverlayTop','doorOverlayBottom','doorMaxWidth','doorMaxHeight','slidingModel','slidingDataReference','slidingSideClearance','slidingTopClearance','slidingBottomClearance','slidingOverlap','slidingMaxWidth','slidingMaxHeight'].forEach(k=>specs[k]=read(k));
+ const result=calculateShutterDimensions({...specs,outerW,outerH,count,boardT,style});
+ return result.valid?{width:result.width,height:result.height,error:''}:{width:0,height:0,error:result.issues.map(x=>x.message).join(' ')};
 }
 function doorSizingMetadata(style){const sliding=style==='sliding',raw=id=>String($d('#d-'+id)?.value??'').trim(),limitW=Number(raw(sliding?'slidingMaxWidth':'doorMaxWidth'))||0,limitH=Number(raw(sliding?'slidingMaxHeight':'doorMaxHeight'))||0,fit=sliding?'track':String($d('#d-doorFit')?.value||state.doorFit||'verify');const sizingRule=sliding?'W = (openingW − 2 × side deduction + (leaf count − 1) × overlap) / leaf count; H = openingH − top deduction − bottom deduction':fit==='inset'?'W = (openingW − 2 × side clearance − (leaf count − 1) × meeting gap) / leaf count; H = openingH − top clearance − bottom clearance':'W = (openingW + 2 × side overlay − (leaf count − 1) × meeting gap) / leaf count; H = openingH + top overlay + bottom overlay';return {doorSystem:style,doorFit:fit,systemModel:sliding?state.slidingModel:[state.hingeBrand,state.hingeModel].filter(Boolean).join(' / '),manufacturerDataReference:sliding?state.slidingDataReference:state.doorDataReference,sizingRule,systemMaxWidth:limitW,systemMaxHeight:limitH,manufacturingStatus:'Needs review'};}
 function makeParts(){
