@@ -49,3 +49,13 @@ test('height supports a construction without a top board', () => {
  assert.equal(r.valid,true);
  assert.equal(r.height,2382);
 });
+
+
+test('partition deduction applies to inset fronts, not overlay or sliding panels', () => {
+ const overlay=calculate({...common,partitionCount:1,style:'hinged',doorFit:'overlay',doorOverlaySide:18,doorOverlayTop:18,doorOverlayBottom:18});
+ assert.equal(overlay.valid,true);
+ assert.equal(overlay.width,599);
+ const sliding=calculate({style:'sliding',outerW:1800,outerH:2400,boardT:18,count:2,partitionCount:1,slidingModel:'System A',slidingDataReference:'Catalog p. 8',slidingMaxWidth:900,slidingMaxHeight:2400,slidingSideClearance:10,slidingTopClearance:20,slidingBottomClearance:20,slidingOverlap:30});
+ assert.equal(sliding.valid,true);
+ assert.equal(sliding.width,887);
+});
