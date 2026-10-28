@@ -47,3 +47,13 @@ test('blocks cup depth exceeding the shutter thickness', () => {
  assert.equal(r.readyForDrilling, false);
  assert.ok(r.issues.some(x => x.field === 'drilling'));
 });
+
+
+test('prefers the higher hinge-count rule when valid manufacturer ranges overlap', () => {
+ const r=calculate({...base,rules:[
+  {...rule,hingeCount:3,maxSpacingMm:500},
+  {...rule,hingeCount:4,maxSpacingMm:300}
+ ]});
+ assert.equal(r.hingeCount,4);
+ assert.equal(r.selectedRule.hingeCount,4);
+});
