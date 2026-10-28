@@ -32,5 +32,20 @@ test('rejects dimensions above verified maximum limits', () => {
 });
 
 test('open-front cabinet does not fabricate shutter dimensions', () => {
- assert.deepEqual(calculate({style:'open'}),{valid:true,width:0,height:0,issues:[],schemaVersion:'dcode.shutter-sizing.v1'});
+ assert.deepEqual(calculate({style:'open'}),{valid:true,width:0,height:0,issues:[],schemaVersion:'dcode.shutter-sizing.v2'});
+});
+
+
+test('inset shutter width accounts for internal partitions', () => {
+ const r=calculate({...common,outerW:1800,outerH:2400,count:3,partitionCount:1,style:'hinged',doorFit:'inset',doorSideClearance:2,doorTopClearance:2,doorBottomClearance:2,doorMaxWidth:700});
+ assert.equal(r.valid,true);
+ assert.equal(Math.round(r.calculatedWidthMm*10)/10,578.7);
+ assert.equal(r.width,579);
+ assert.equal(r.height,2360);
+});
+
+test('height supports a construction without a top board', () => {
+ const r=calculate({...common,outerH:2400,style:'hinged',doorFit:'inset',hasTopBoard:false,hasBottomBoard:true,doorSideClearance:2,doorTopClearance:2,doorBottomClearance:2});
+ assert.equal(r.valid,true);
+ assert.equal(r.height,2382);
 });
