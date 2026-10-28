@@ -1,0 +1,22 @@
+name: Kitchen geometry regression tests
+
+on:
+  push:
+    branches:
+      - ui/low-balance-2d-3d-polish
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  geometry-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run kitchen geometry regression tests
+        run: node --test tests/kitchen-geometry.test.mjs

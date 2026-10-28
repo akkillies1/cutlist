@@ -74,6 +74,24 @@ export function buildKitchenGeometry(input = {}) {
       start:{xMm:(room.widthMm-islandWidth)/2,yMm:(room.depthMm-islandDepth)/2},
       end:{xMm:(room.widthMm+islandWidth)/2,yMm:(room.depthMm+islandDepth)/2}, orientation:'island', modules:[], nominalModulesTotalMm:0 });
   }
+  // Materialise each nominal module as a positioned room-local object. This is the
+  // shared coordinate contract for future elevation, plan and 3D projections;
+  // it does not yet imply shutter, filler or manufacturer-specific construction.
+  const positionedModules = runs.flatMap(run => (run.modules || []).map(module => {
+    const vertical = run.orientation === 'vertical';
+    const xMm = run.start.xMm + (vertical ? 0 : module.startMm);
+    const yMm = run.start.yMm + (vertical ? module.startMm : 0);
+    return {
+      id: module.id, runId: run.id, sequence: module.sequence,
+      role: run.role, orientation: run.orientation,
+      xMm, yMm,
+      widthMm: vertical ? run.depthMm : module.widthMm,
+      depthMm: vertical ? module.widthMm : run.depthMm,
+      runLengthMm: module.widthMm,
+      startMm: module.startMm, endMm: module.endMm,
+      overrun: module.overrun
+    };
+  }));
   const baseHeight = baseEnabled ? Math.max(0,n(input.counterHeight,900)-n(input.plinth,100)-n(input.counterThickness,20)) : 0;
   const upperHeight = input.wallEnabled === false ? 0 : positive(input.wallHeight);
   const loftHeight = input.wallEnabled === false || input.loftEnabled === false ? 0 : positive(input.loftHeight);
@@ -96,7 +114,7 @@ export function buildKitchenGeometry(input = {}) {
     room,
     layoutKind: layout === 'c' ? 'c-shaped-three-run' : layout === 'u' ? 'u-shaped-three-run' : layout === 'peninsula' ? 'attached-peninsula' : layout,
     dimensions:{runA,runB,runC,baseDepthMm:baseDepth,wallDepthMm:wallDepth,peninsulaLengthMm:peninsulaLength,peninsulaWidthMm:peninsulaWidth,peninsulaSide},
-    runs, verticalZones, moduleCollections,
+    runs, positionedModules, verticalZones, moduleCollections,
     openings:{
       window:{widthMm:positive(input.windowWidth),offsetMm:positive(input.windowOffset),location:String(input.window||'unknown')},
       door:{widthMm:positive(input.doorWidth),offsetMm:positive(input.doorOffset)}
@@ -114,9 +132,12 @@ export function validateKitchenGeometry(model, input = {}) {
   const islandEnabled = input.islandEnabled !== false;
   if (baseEnabled && dimensions.runA <= 0) issues.push('Run A needs a positive measured length.');
   if (baseEnabled && dimensions.runA > room.widthMm) issues.push('Run A exceeds the measured room width.');
+  if (baseEnabled && layout === 'parallel' && dimensions.runB > room.widthMm) issues.push('The opposing run exceeds the measured room width.');
+  if (baseEnabled && ['l','u','c'].includes(layout) && dimensions.runA <= dimensions.baseDepthMm) issues.push('Run A must exceed the base cabinet depth to leave a usable straight section beyond the corner.');
+  if (baseEnabled && ['l','u','c'].includes(layout) && dimensions.runB <= dimensions.baseDepthMm) issues.push('Run B must exceed the base cabinet depth to provide a usable return beyond the corner.');
   if (baseEnabled && ['l','u','c'].includes(layout) && dimensions.runB > room.depthMm) issues.push('Run B exceeds the measured room depth.');
   if (baseEnabled && ['u','c'].includes(layout) && dimensions.runC > room.depthMm) issues.push('Run C exceeds the measured room depth.');
-  if (baseEnabled && ['u','c'].includes(layout) && dimensions.runC <= 0) issues.push('A three-run layout needs a measured third run.');
+  if (baseEnabled && ['u','c'].includes(layout) && dimensions.runC <= dimensions.baseDepthMm) issues.push('A three-run layout needs a third run longer than the base cabinet depth.');
   if (baseEnabled && layout === 'parallel' && room.depthMm - 2 * dimensions.baseDepthMm < positive(input.aisle ?? 1000))
     issues.push('The opposing-run aisle is below the entered target before handles and open doors.');
   if (islandEnabled && layout === 'peninsula' && dimensions.peninsulaLengthMm + (baseEnabled ? dimensions.baseDepthMm : 0) > room.depthMm)
@@ -124,6 +145,37 @@ export function validateKitchenGeometry(model, input = {}) {
   for (const set of model.moduleCollections || []) {
     if (Math.abs(set.actualMm - set.expectedMm) > 1)
       issues.push(set.runId + ' module widths total ' + set.actualMm + ' mm; required usable length is ' + set.expectedMm + ' mm.');
+  }
+  // Validate complete run footprints as well as individual modules. Islands and
+  // peninsulas currently have no module rows, so module-only checks miss them.
+  for (const run of model.runs || []) {
+    const x1 = Math.min(run.start.xMm, run.end.xMm);
+    const y1 = Math.min(run.start.yMm, run.end.yMm);
+    const x2 = Math.max(run.start.xMm, run.end.xMm);
+    const y2 = Math.max(run.start.yMm, run.end.yMm);
+    let left = x1, top = y1, right = x2, bottom = y2;
+    if (run.orientation === 'horizontal') { top = y1; bottom = y1 + run.depthMm; }
+    else if (run.orientation === 'vertical') { left = x1; right = x1 + run.depthMm; }
+    else if (run.orientation === 'island') { left = x1; top = y1; right = x2; bottom = y2; }
+    if (left < -1 || top < -1 || right > room.widthMm + 1 || bottom > room.depthMm + 1)
+      issues.push(run.id + ' footprint extends beyond the measured room boundary.');
+  }
+  for (const module of model.positionedModules || []) {
+    const right = module.xMm + module.widthMm;
+    const bottom = module.yMm + module.depthMm;
+    if (module.xMm < -1 || module.yMm < -1 || right > room.widthMm + 1 || bottom > room.depthMm + 1)
+      issues.push(module.id + ' extends beyond the measured room boundary.');
+  }
+  const placed = model.positionedModules || [];
+  for (let i = 0; i < placed.length; i++) {
+    const a = placed[i];
+    for (let j = i + 1; j < placed.length; j++) {
+      const b = placed[j];
+      const overlapX = Math.min(a.xMm + a.widthMm, b.xMm + b.widthMm) - Math.max(a.xMm, b.xMm);
+      const overlapY = Math.min(a.yMm + a.depthMm, b.yMm + b.depthMm) - Math.max(a.yMm, b.yMm);
+      if (overlapX > 1 && overlapY > 1)
+        issues.push(a.id + ' overlaps ' + b.id + ' by ' + Math.round(overlapX) + ' × ' + Math.round(overlapY) + ' mm in plan.');
+    }
   }
   if (verticalZones.totalStackMm > room.heightMm)
     issues.push('Counter + backsplash gap + wall unit + loft exceed the room height.');

@@ -1,0 +1,5 @@
+/* Cloud migration panel */
+.db-migration-panel{margin:18px 0;padding:18px;border:1px solid var(--line,#d8d8d8);border-radius:14px;background:var(--panel,#fff)}
+.db-migration-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.db-migration-panel small{display:block;line-height:1.55;opacity:.78;margin-top:10px}
+@media(max-width:640px){.db-migration-panel{padding:14px}.db-migration-actions{display:grid;grid-template-columns:1fr}.db-migration-actions button{width:100%}}

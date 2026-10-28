@@ -129,6 +129,7 @@ const catalog = {
 const defaultLayouts = {Wardrobe:'wardrobe-wall',Kitchen:'l-drawer-run',Bathroom:'vanity-mirror',Living:'tv-wall',Utility:'laundry-wall'};
 let bySpace = {};
 let currentSpace = 'Wardrobe';
+let preferredTemplateId = '';
 let booted = false;
 
 function fresh(space) {
@@ -169,7 +170,8 @@ function render() {
  const plan=getPlan(),spec=catalog[currentSpace]||catalog.Wardrobe,layouts=spec.layouts;
  const templates=getTemplates(),chosenLayout=layouts.find(x=>x.id===plan.layout)||layouts[0],zones=getZones(currentSpace,plan.layout),constraints=plan.constraints||{};
  const groups=spec.groups;
- const activeTemplateId=$('#rpUnitTemplate')?.value,selectedTemplateId=templates.some(t=>t.id===activeTemplateId)?activeTemplateId:(templates[0]?.id||''),activeGroupId=$('#rpUnitGroup')?.value,selectedGroupId=groups.some(g=>g[0]===activeGroupId)?activeGroupId:(templates.find(t=>t.id===selectedTemplateId)?.group||groups[0]?.[0]),activeZoneId=$('#rpZone')?.value,selectedZoneId=zones.some(z=>z[0]===activeZoneId)?activeZoneId:(zones[0]?.[0]||'unassigned');
+ const activeTemplateId=$('#rpUnitTemplate')?.value,preferredTemplate=templates.some(t=>t.id===preferredTemplateId)?preferredTemplateId:'',selectedTemplateId=preferredTemplate||(templates.some(t=>t.id===activeTemplateId)?activeTemplateId:(templates[0]?.id||'')),activeGroupId=$('#rpUnitGroup')?.value,selectedGroupId=preferredTemplate?(templates.find(t=>t.id===selectedTemplateId)?.group||groups[0]?.[0]):(groups.some(g=>g[0]===activeGroupId)?activeGroupId:(templates.find(t=>t.id===selectedTemplateId)?.group||groups[0]?.[0])),activeZoneId=$('#rpZone')?.value,selectedZoneId=zones.some(z=>z[0]===activeZoneId)?activeZoneId:(zones[0]?.[0]||'unassigned');
+ preferredTemplateId='';
  const includedUnits=plan.units.filter(u=>plan.groups.includes(u.group)).length;
  const excludedUnits=plan.units.length-includedUnits;
  root.innerHTML=`
@@ -267,7 +269,7 @@ export function initRoomPlanner(){
  currentSpace=$('#d-space')?.value||currentSpace;getPlan();render();
  $('#d-space')?.addEventListener('change',e=>{currentSpace=e.target.value;getPlan();render();save();});
  document.addEventListener('dcode:room-plan-refresh',()=>{currentSpace=$('#d-space')?.value||currentSpace;getPlan();render();});
- document.addEventListener('dcode:template-selected',()=>{currentSpace=$('#d-space')?.value||currentSpace;getPlan();render();});
+ document.addEventListener('dcode:template-selected',e=>{currentSpace=$('#d-space')?.value||currentSpace;getPlan();const kind=e.detail?.kind;const template=getTemplates().find(t=>t.id===kind);if(template){preferredTemplateId=template.id;if(!getPlan().groups.includes(template.group)){getPlan().groups=[...getPlan().groups,template.group];save();}}render();});
  document.addEventListener('dcode:room-unit-loaded',()=>{const s=$('#roomPlannerStatus');if(s)s.textContent='Unit loaded. Configure any missing hardware values and verify the preview before adding parts.';});
  document.addEventListener('change',e=>{if(e.target.closest('#roomPlannerApp')&&e.target.matches('[data-rp-accessory]')){const chosen=[...document.querySelectorAll('[data-rp-accessory]:checked')].map(el=>el.dataset.rpAccessory);const t=getTemplates().find(x=>x.id===$('#rpUnitTemplate')?.value);if(t&&$('#rpUnitName')&&!$('#rpUnitName').value)$('#rpUnitName').value=t.label+' '+String(getPlan().units.length+1).padStart(2,'0');}});
  renderAccessoryOptionsInto(getTemplates()[0]?.accessories||[]);
