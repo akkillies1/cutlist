@@ -23,3 +23,5 @@ jobs:
         run: node --test tests/kitchen-geometry.test.mjs
       - name: Run cabinet geometry regression tests
         run: node --test tests/cabinet-geometry.test.mjs
+      - name: Run manufacturing system validation regression tests
+        run: node --test tests/manufacturing-system-validation.test.mjs
