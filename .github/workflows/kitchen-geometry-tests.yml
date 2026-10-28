@@ -27,3 +27,5 @@ jobs:
         run: node --test tests/manufacturing-system-validation.test.mjs
       - name: Check manufacturing workspace JavaScript syntax
         run: node --input-type=module --check < public/design-workspace.js && node --input-type=module --check < public/manufacturing-system-validation.js
+      - name: Run shutter sizing calculation regression tests
+        run: node --test tests/shutter-sizing.test.mjs
