@@ -6,7 +6,7 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",
 const STORAGE_KEY="dcode-assembly-studio-v1";
 const typeLabels={board:"Board panel",mirror:"Mirror",glass:"Glass",hardware:"Hardware / fitting",decorative:"Decorative object"};
 const typeColors={board:"#dce3d6",mirror:"#9dc4c9",glass:"#c2dde4",hardware:"#555d62",decorative:"#c5a57b"};
-let objects=[],editingId=null,yaw=35,pitch=25,initialized=false,generatedStamp="";
+let objects=[],editingId=null,yaw=35,pitch=25,initialized=false,generatedStamp="",importedDesignSource=null;
 
 function id(){return "as-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7);}
 function number(id, fallback=0){const el=$("#"+id);return el&&el.value.trim()!==""?Number(el.value):fallback;}
@@ -21,6 +21,16 @@ function applyConstraintInputs(value){
  if(!value||typeof value!=="object")return;
  const map={preset:"asPreset",width:"asCabWidth",height:"asCabHeight",depth:"asCabDepth",boardThickness:"asBoardT",backThickness:"asBackT",shelves:"asShelfCount",partitions:"asPartitionCount",frontGap:"asFrontGap",minOpening:"asMinOpening",jointSystem:"asJointSystem",backMount:"asBackMount"};
  Object.entries(map).forEach(([key,elementId])=>{if(value[key]!=null&&$("#"+elementId))$("#"+elementId).value=String(value[key]);});
+}
+function importDesignStudioState(detail={}){
+ const numericKeys=['width','height','depth','boardThickness','backThickness','shelves','partitions','frontGap'];
+ if(numericKeys.some(key=>!Number.isFinite(Number(detail[key])))||![detail.width,detail.height,detail.depth,detail.boardThickness,detail.backThickness].every(v=>Number(v)>0)){
+  const status=$("#asDesignSyncStatus");if(status)status.textContent="Import failed: Design Studio did not provide valid positive dimensions. Correct the design inputs and try again.";return;
+ }
+ const next={...constraintInputs(),preset:detail.preset==='tv-console'?'tv-console':'wardrobe',width:Number(detail.width),height:Number(detail.height),depth:Number(detail.depth),boardThickness:Number(detail.boardThickness),backThickness:Number(detail.backThickness),shelves:Math.floor(Number(detail.shelves)),partitions:Math.floor(Number(detail.partitions)),frontGap:Number(detail.frontGap)||3,backMount:detail.backMount==='inset'?'inset':'overlay'};
+ importedDesignSource={name:String(detail.designName||'Furniture design'),revision:String(detail.sourceRevision||''),template:String(detail.template||''),importedAt:new Date().toISOString()};
+ applyConstraintInputs(next);renderConstraintReport();persist();
+ const status=$("#asDesignSyncStatus");if(status)status.textContent="Imported from Design Studio: "+String(detail.designName||"Furniture design")+" · "+next.width+" × "+next.height+" × "+next.depth+" mm. Existing objects were not rebuilt. Review constraints, then choose Build assembly preset to regenerate; unsaved manual objects may be replaced by that action.";
 }
 function readForm(){
  const type=$("#asType").value, length=number("asLength"), width=number("asWidth"), thickness=number("asThickness"), quantity=number("asQty",1);
@@ -39,7 +49,7 @@ function sizeOf(o){
 function validObject(o){return positive(o.length)&&positive(o.width)&&positive(o.thickness)&&Number.isInteger(o.quantity)&&o.quantity>0&&[o.position.x,o.position.y,o.position.z].every(Number.isFinite);}
 function persist(){
  const parameters=constraintInputs();
- const snapshot={version:3,objects:clone(objects),yaw,pitch,parameters,constraintStamp:generatedStamp,updatedAt:new Date().toISOString()};
+ const snapshot={version:3,objects:clone(objects),yaw,pitch,parameters,constraintStamp:generatedStamp,sourceDesign:importedDesignSource?clone(importedDesignSource):null,updatedAt:new Date().toISOString()};
  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot));$("#asSaveStatus").textContent="Saved in this browser · "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});}
  catch(e){$("#asSaveStatus").textContent="Local storage unavailable · export schedules as backup";}
  document.dispatchEvent(new CustomEvent("dcode:assembly-changed",{detail:{assembly:clone(snapshot)}}));
@@ -402,7 +412,7 @@ function addToCutlist(){
  if(invalid){alert("Fix invalid dimensions or quantity for "+invalid.name+" before transferring board parts.");return;}
  const report=validateAssembly();
  if(report.errors.length){alert("Cut-list handoff is blocked until geometry issues are fixed:\n\n"+report.errors.slice(0,6).join("\n"));return;}
- const parts=boards.map(o=>({...clone(o),bounds:objectBounds(o),geometryVersion:o.constraintGenerated?"dcode.assembly-constrained.v3":"dcode.assembly-manual.v1",jointSystem:o.jointSystem||constraintInputs().jointSystem,backMounting:o.backMounting||constraintInputs().backMount,cutDimensionSource:o.cutDimensionSource||(o.constraintGenerated?"Constrained Assembly Model":"Manual object dimensions"),jointGraphSummary:{verified:report.jointGraph?.verified||0,required:report.jointGraph?.required||0,edgeCount:report.jointGraph?.edges?.length||0},manufacturingStatus:"Needs review",project:$("#d-project").value||"Current project"}));
+ const parts=boards.map(o=>({...clone(o),bounds:objectBounds(o),geometryVersion:o.constraintGenerated?"dcode.assembly-constrained.v3":"dcode.assembly-manual.v1",sourceDesignRevision:importedDesignSource?.revision||null,sourceDesignName:importedDesignSource?.name||null,jointSystem:o.jointSystem||constraintInputs().jointSystem,backMounting:o.backMounting||constraintInputs().backMount,cutDimensionSource:o.cutDimensionSource||(o.constraintGenerated?"Constrained Assembly Model":"Manual object dimensions"),jointGraphSummary:{verified:report.jointGraph?.verified||0,required:report.jointGraph?.required||0,edgeCount:report.jointGraph?.edges?.length||0},manufacturingStatus:"Needs review",project:$("#d-project").value||"Current project"}));
  document.dispatchEvent(new CustomEvent("dcode:assembly-add-board-parts-to-cutlist",{detail:{assemblyName:$("#asPreset").selectedOptions[0]?.textContent||"Custom assembly",parts}}));
  $("#asSaveStatus").textContent="Sent "+boards.length+" board part(s) for cut-list review · "+report.intersections+" solid intersection(s). Hardware, mirrors and glass remain separate.";
 }
@@ -437,22 +447,24 @@ function switchViews(two){
 }
 function restoreSnapshot(snapshot){
  if(!snapshot||!Array.isArray(snapshot.objects)){
-  objects=[];generatedStamp="";yaw=35;pitch=25;
+  objects=[];generatedStamp="";yaw=35;pitch=25;importedDesignSource=null;
   applyConstraintInputs({preset:"wardrobe",width:1800,height:2400,depth:600,boardThickness:18,backThickness:6,shelves:2,partitions:1,frontGap:3,minOpening:100,jointSystem:"butt-confirmat",backMount:"overlay"});
   $("#asYaw").value="35";$("#asPitch").value="25";$("#asYawValue").textContent="35°";$("#asPitchValue").textContent="25°";
   renderAll();persist();return;
  }
  if(snapshot.parameters)applyConstraintInputs(snapshot.parameters);
- objects=snapshot.objects.filter(validObject);yaw=Number(snapshot.yaw)||35;pitch=Number(snapshot.pitch)||25;generatedStamp=String(snapshot.constraintStamp||"");
+ objects=snapshot.objects.filter(validObject);yaw=Number(snapshot.yaw)||35;pitch=Number(snapshot.pitch)||25;generatedStamp=String(snapshot.constraintStamp||"");importedDesignSource=snapshot.sourceDesign&&typeof snapshot.sourceDesign==='object'?snapshot.sourceDesign:null;
  $("#asYaw").value=String(yaw);$("#asPitch").value=String(pitch);
  $("#asYawValue").textContent=yaw+"°";$("#asPitchValue").textContent=pitch+"°";
  renderAll();persist();
 }
 export function initAssemblyStudio(){
  if(initialized||!$("#assemblyStudio"))return;initialized=true;
- try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");if((saved?.version===1||saved?.version===2||saved?.version===3)&&Array.isArray(saved.objects)){if(saved.parameters)applyConstraintInputs(saved.parameters);objects=saved.objects.filter(validObject);yaw=Number(saved.yaw)||35;pitch=Number(saved.pitch)||25;generatedStamp=String(saved.constraintStamp||"");}}catch(e){}
+ try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");if((saved?.version===1||saved?.version===2||saved?.version===3)&&Array.isArray(saved.objects)){if(saved.parameters)applyConstraintInputs(saved.parameters);objects=saved.objects.filter(validObject);yaw=Number(saved.yaw)||35;pitch=Number(saved.pitch)||25;generatedStamp=String(saved.constraintStamp||"");importedDesignSource=saved.sourceDesign&&typeof saved.sourceDesign==='object'?saved.sourceDesign:null;}}catch(e){}
  $("#asYaw").value=String(yaw);$("#asPitch").value=String(pitch);$("#asYawValue").textContent=yaw+"°";$("#asPitchValue").textContent=pitch+"°";
  $("#asType").addEventListener("change",updateTypeHelp);
+ $("#asImportDesign").addEventListener("click",()=>{const status=$("#asDesignSyncStatus");if(status)status.textContent="Requesting current Design Studio dimensions…";document.dispatchEvent(new CustomEvent("dcode:assembly-request-design-state"));});
+ document.addEventListener("dcode:assembly-import-design-state",e=>importDesignStudioState(e.detail||{}));
  ["asPreset","asCabWidth","asCabHeight","asCabDepth","asBoardT","asBackT","asShelfCount","asPartitionCount","asFrontGap","asMinOpening","asJointSystem","asBackMount"].forEach(id=>$("#"+id).addEventListener("change",()=>{renderConstraintReport();persist();}));
  $("#asAddObject").addEventListener("click",addOrSaveObject);
  $("#asCancelEdit").addEventListener("click",()=>{resetEditForm();});
@@ -470,5 +482,5 @@ export function initAssemblyStudio(){
  updateTypeHelp();renderAll();persist();switchViews(true);
 }
 export function getAssemblySnapshot(){
- return {version:3,objects:clone(objects),yaw,pitch,parameters:constraintInputs(),constraintStamp:generatedStamp};
+ return {version:3,objects:clone(objects),yaw,pitch,parameters:constraintInputs(),constraintStamp:generatedStamp,sourceDesign:importedDesignSource?clone(importedDesignSource):null};
 }
