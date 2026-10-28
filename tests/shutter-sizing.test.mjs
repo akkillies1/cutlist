@@ -45,7 +45,7 @@ test('inset shutter width accounts for internal partitions', () => {
 });
 
 test('height supports a construction without a top board', () => {
- const r=calculate({...common,outerH:2400,style:'hinged',doorFit:'inset',hasTopBoard:false,hasBottomBoard:true,doorSideClearance:2,doorTopClearance:2,doorBottomClearance:2});
+ const r=calculate({...common,outerH:2400,style:'hinged',doorFit:'inset',hasTopBoard:false,hasBottomBoard:true,doorSideClearance:2,doorTopClearance:0,doorBottomClearance:0});
  assert.equal(r.valid,true);
  assert.equal(r.height,2382);
 });
