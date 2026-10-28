@@ -13,7 +13,7 @@ export default async function (req, res) {
   }
   const origin = String(req.headers?.origin || req.headers?.Origin || '');
   const allowedOrigins = new Set(['https://dcode-cutting-list.hatchable.site']);
-  if (origin && !allowedOrigins.has(origin)) return res.status(403).json({ error: 'Cross-origin register writes are not allowed.' });
+  if (!allowedOrigins.has(origin)) return res.status(403).json({ error: 'A valid same-origin request is required to write the register.' });
   const body = req.body || {};
   if (body.action !== 'save' || !body.state || !body.state.current || !Array.isArray(body.state.current.items) || !Array.isArray(body.state.current.vendors)) {
     return res.status(400).json({ error: 'Expected a complete hardware register state.' });
@@ -53,7 +53,7 @@ export default async function (req, res) {
         item_id: String(it.id),
         vendor_name: v.name,
         unit_rate: raw === '' || raw === undefined || raw === null || !Number.isFinite(Number(raw)) ? null : Math.max(0, Number(raw)),
-        gst_rate: Math.min(100, Math.max(0, Number(detail.gstRate ?? it.gstRate ?? data.gstRate ?? 18))),
+        gst_rate: Math.min(100, Math.max(0, Number(it.gstRate ?? detail.gstRate ?? data.gstRate ?? 18))),
         source_type: detail.sourceType === 'online' ? 'online' : 'supplier',
         product_url: String(detail.productUrl || ''),
         pack_size: Math.max(0.001, Number(detail.packSize) || 1),
@@ -88,6 +88,13 @@ export default async function (req, res) {
      JOIN dcode_hardware_items i ON i.id=x.item_id
      ON CONFLICT(item_id,vendor_id) DO UPDATE SET unit_rate=EXCLUDED.unit_rate,gst_rate=EXCLUDED.gst_rate,source_type=EXCLUDED.source_type,product_url=EXCLUDED.product_url,pack_size=EXCLUDED.pack_size,freight=EXCLUDED.freight,discount=EXCLUDED.discount,quotation_ref=EXCLUDED.quotation_ref,notes=EXCLUDED.notes,updated_at=now()`,
     [JSON.stringify(quotes)]
+  );
+  // Keep the normalized item/quote tables in sync with the current saved register.
+  // Deleting an item from the working register removes its normalized row and cascaded quotes;
+  // vendor records are retained for historical continuity and should be marked inactive instead.
+  await db.query(
+    'DELETE FROM dcode_hardware_items WHERE NOT EXISTS (SELECT 1 FROM jsonb_to_recordset($1::jsonb) AS x(id text) WHERE x.id=dcode_hardware_items.id)',
+    [JSON.stringify(items.map(it => ({ id: it.id })))]
   );
   await db.query('INSERT INTO dcode_hardware_register_state(id,schema_version,payload,updated_at) VALUES(TRUE,2,$1::jsonb,now()) ON CONFLICT(id) DO UPDATE SET schema_version=2,payload=EXCLUDED.payload,updated_at=now()', [JSON.stringify(state)]);
   if (body.saveRevision) {
