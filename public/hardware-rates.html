@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hardware Rate Register — DCODE</title>
+<meta name="description" content="Versioned supplier quotations and historical hardware rates for DCODE furniture projects.">
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#22251f;background:#f5f6f2;--line:#e0e4db;--muted:#6d7468;--ink:#22251f;--accent:#d9e8b9;--panel:#fff}
+*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:#fff;color:var(--ink);font-weight:650}button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #c8dfa0;outline-offset:2px}
+header{background:#20231f;color:#fff;padding:16px clamp(14px,3vw,32px);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}header strong{letter-spacing:.12em;font-size:13px}header small{display:block;color:#c7cec0;font-size:10px;margin-top:4px}header a{color:#fff;text-decoration:none;border:1px solid #52584e;border-radius:8px;padding:8px 11px;font-size:12px}
+main{max-width:1600px;margin:auto;padding:24px clamp(12px,2.5vw,32px) 60px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--muted)}h1{font-size:clamp(24px,3vw,34px);letter-spacing:-.04em;margin:8px 0}p{color:var(--muted);line-height:1.6;font-size:13px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:16px}.topgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.metric{border:1px solid var(--line);border-radius:10px;padding:13px;min-width:0}.metric small{display:block;color:var(--muted);font-size:10px}.metric strong{display:block;font-size:clamp(16px,2vw,23px);margin-top:7px;overflow-wrap:anywhere}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.toolbar label{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}.toolbar input,.toolbar select{border:1px solid var(--line);border-radius:7px;padding:8px;min-width:0;background:#fff}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px;margin-top:12px}.table{border-collapse:separate;border-spacing:0;width:100%;min-width:1320px;background:#fff}.table th{position:sticky;top:0;background:#f7f8f4;color:#60685c;font-size:10px;text-align:left;letter-spacing:.04em;padding:10px;border-bottom:1px solid var(--line);z-index:1}.table td{padding:8px;border-bottom:1px solid #edf0e9;font-size:12px;vertical-align:middle}.table input,.table select{width:100%;min-width:78px;padding:7px;border:1px solid #e0e4db;border-radius:6px;background:#fff;font-size:12px}.table .desc{min-width:230px}.table .qty{min-width:70px}.table .unit{min-width:86px}.table .rate{min-width:110px}.table .supplier{min-width:155px}.muted{color:var(--muted)}.tag{display:inline-flex;border-radius:99px;padding:4px 8px;font-size:10px;font-weight:750;background:#f0f2ec;color:#51584c;white-space:nowrap}.tag.pending{background:#fff2d9;color:#805d19}.tag.ok{background:#eaf4df;color:#42602e}.tag.draft{background:#edf0f7;color:#4b5674}.warning{background:#fff8e9;border:1px solid #eddfb9;color:#755c27;border-radius:9px;padding:11px 13px;font-size:12px;line-height:1.6}.history{display:grid;grid-template-columns:1fr 1fr;gap:12px}.history ol{padding-left:20px;margin-bottom:0}.history li{margin:8px 0;font-size:12px}.empty{padding:20px;text-align:center;color:var(--muted)}.right{text-align:right;font-variant-numeric:tabular-nums}.footnote{font-size:11px;margin-top:12px}.smallbtn{padding:6px 8px;font-size:11px}@media(max-width:760px){.topgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.history{grid-template-columns:1fr}main{padding-top:16px}.panel{padding:12px}.toolbar{align-items:stretch}.toolbar label{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header><div><strong>DCODE INTERIORS</strong><small>HARDWARE RATE REGISTER · DESIGN TO PROCUREMENT</small></div><a href="/app/">← Back to Furniture Designer</a></header>
+<main>
+<div class="eyebrow">PROCUREMENT SUPPORT · VERSIONED REFERENCE DATA</div>
+<h1>Hardware Rate Register</h1>
+<p>Design first; verify commercial rates when quotations arrive. This register is optional during design and does not certify technical compatibility or authorise procurement. Imported October 2026 prices are a <strong>draft historical quotation baseline</strong>, not yet sanctioned rates.</p>
+<div class="warning"><strong>Storage scope:</strong> This first register prototype saves revisions in this browser only. Export a JSON backup before moving devices or browsers. Shared multi-user storage and permissions are a later integration milestone.</div>
+<section class="panel">
+ <div class="topgrid">
+  <div class="metric"><small>Register revision</small><strong id="versionMetric">V1 · Draft</strong></div>
+  <div class="metric"><small>Items in register</small><strong id="itemMetric">35</strong></div>
+  <div class="metric"><small>Rates awaiting quote</small><strong id="pendingMetric">—</strong></div>
+  <div class="metric"><small>Selected supplier subtotal</small><strong id="subtotalMetric">—</strong></div>
+ </div>
+ <div class="toolbar" style="margin-top:14px">
+  <label>Quotation baseline <input id="quoteDate" value="October 2026" aria-label="Quotation baseline date"></label>
+  <label>GST % <input id="gstRate" type="number" min="0" max="100" step="0.1" value="18" style="width:80px"></label>
+  <label>Version status <select id="versionStatus"><option value="Draft">Draft</option><option value="Under review">Under review</option><option value="Sanctioned">Sanctioned</option><option value="Superseded">Superseded</option></select></label>
+  <button id="saveVersion" class="primary">Save as new version</button>
+  <button id="exportCsv">Export current CSV</button>
+  <button id="exportJson">Export version backup</button>
+  <button id="restoreVersion">Restore selected version as new</button>
+  <label>History <select id="historySelect" aria-label="Select historical version"></select></label>
+ </div>
+ <p class="footnote">Editing fields creates a working draft in this page. Select “Save as new version” to preserve a named snapshot. Status labels are recorded for workflow tracking only; this browser-only prototype does not authenticate approvers or enforce permissions.</p>
+</section>
+<section class="panel">
+ <div class="toolbar"><label style="flex:1;min-width:180px">Search items / supplier <input id="search" placeholder="Search item or supplier…" style="width:100%"></label><label>Supplier filter <select id="supplierFilter"><option value="">All suppliers</option><option>Hardware Gallery</option><option>Green Decor</option><option>Signature Hardwares</option></select></label><label><input type="checkbox" id="pendingOnly"> Show items with missing rates</label></div>
+ <div class="tablewrap"><table class="table"><thead><tr><th>Item / description</th><th>Exact model / SKU</th><th>Qty</th><th>Unit</th><th>Hardware Gallery · ₹</th><th>Green Decor · ₹</th><th>Signature Hardwares · ₹</th><th>Selected supplier</th><th>Selected line total · before GST</th><th>Quotation / verification notes</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table></div>
+ <p class="footnote">Rates are treated as GST-exclusive as instructed. Rate values are compared only as commercial inputs; matching descriptions do not prove identical products. Confirm model/SKU, pack size, unit and quotation evidence before sanction. Blank rates remain blank, never zero.</p>
+</section>
+<section class="panel history">
+ <div><h2 style="font-size:17px;margin-top:0">Version history</h2><ol id="historyList"></ol></div>
+ <div><h2 style="font-size:17px;margin-top:0">Procurement status</h2><div id="procurementSummary" class="muted" style="font-size:12px;line-height:1.8"></div><p class="footnote">Lowest-rate indicators are informative only. The estimator must select the supplier per item; no supplier is silently selected from price alone.</p></div>
+</section>
+</main>
+<script>
+(function(){
+const KEY='dcode-hardware-rate-register-v1';
+const SUPPLIERS=['Hardware Gallery','Green Decor','Signature Hardwares'];
+const seed=[
+['Tandembox 8" (Hettich Innotech 470mm)',4,'set',4007.86,4609.32,4537.29],
+['Telescopic channel 500mm soft close',8,'set',760,751.69,881.36],
+['Telescopic channel 400mm soft close',3,'set',700,724.58,811.86],
+['Telescopic channel 350mm soft close',11,'set',675,666.95,783.05],
+['0 Crank hinges soft close',114,'set',222.20,226.27,242.37],
+['8/9.5 Crank hinges soft close',11,'set',244.20,237.29,257.63],
+['PVC leg 100mm',104,'nos',30,32.50,26.04],
+['L gola profile',3,'length',1478.40,1771.19,1549.15],
+['C gola profile',1,'length',1862.40,2231.36,1956.78],
+['Gola fittings',30,'nos',29.61,33.90,20.77],
+['Aventos bi folding',1,'set',null,5408.47,null],
+['Push to open',11,'nos',78,481.36,46.23],
+['Waste bin holder',1,'set',2098.80,2505.08,664.31],
+['Gtpt - 900mm (Cargo Drainer)',1,'set',3794.80,4364.41,4654],
+['Adj. shelf pin',52,'nos',11.70,9.32,2.48],
+['Bottle pullout with slider 200mm',1,'set',2806.96,3414.41,3480],
+['Wide angle hinges soft close',2,'set',1072.60,1253.39,1159.32],
+['Honeycomb rod / Wall shelf rod',10,'nos',null,59.25,52.93],
+['Lift up (Pro lift)',2,'set',233.70,297.46,257.63],
+['Carousel',1,'set',19248.90,22136.44,6511.43],
+['Knob',28,'nos',122.40,88.14,39],
+['Hanging rod',4,'nos',455,888.98,1010.17],
+['Hanging rod clip / Bracket',26,'pcs',77,27.12,33.15],
+['Aluminium grill',18,'nos',106.60,113.56,136.44],
+['5-8 Screw (CSK 16x6)',700,'nos',1.38,.68,.92],
+['1" Screw dry wall',500,'nos',.49,.40,.41],
+['1-1/4" Screw dry wall',500,'nos',.67,.56,.56],
+['2" Screw dry wall',500,'nos',.90,.81,.81],
+['Fisher plug 6mm',200,'nos',.55,.46,.31],
+['Silicon white',3,'nos',235.60,130,189.83],
+['Silicon clear',2,'nos',235.60,130,194.92],
+['Wudfill',3,'nos',120,81.36,105.09],
+['Minifix set (Factory hardware)',612,'set',null,10.87,null],
+['Wooden Dowel (Factory hardware)',828,'nos',null,.75,null],
+['Cotton waste',1,'kg',null,null,278.10]
+];
+const $=s=>document.querySelector(s);
+const clone=x=>JSON.parse(JSON.stringify(x));
+const fmt=n=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const now=()=>new Date().toISOString();
+function initialItems(){return seed.map((r,i)=>({id:'HW-'+String(i+1).padStart(3,'0'),description:r[0],qty:r[1],unit:r[2],rates:{[SUPPLIERS[0]]:r[3],[SUPPLIERS[1]]:r[4],[SUPPLIERS[2]]:r[5]},selectedSupplier:'',model:'',quotationRefs:{},notes:'',status:'Historical quote · unverified'}));}
+function makeInitial(){const data={schemaVersion:1,quoteDate:'October 2026',gstRate:18,status:'Draft',items:initialItems()};return {current:data,history:[{version:1,createdAt:now(),status:'Draft',note:'Initial import from supplied October 2026 comparison list; not yet sanctioned.',data:clone(data)}],nextVersion:2};}
+let store;
+try{store=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){store=null;}
+if(!store||store.schemaVersion!==1||!store.current||!Array.isArray(store.history)){store=makeInitial();persist();}
+let draft=clone(store.current),dirty=false;
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));return true;}catch(e){alert('Could not save to browser storage. Export a JSON backup and reduce stored data.');return false;}}
+function markDirty(){dirty=true;$('#versionMetric').textContent='V'+store.nextVersion+' · Unsaved draft';}
+function saveDraftToStore(){store.current=clone(draft);return persist();}
+function lineTotal(item){const rate=item.selectedSupplier?item.rates[item.selectedSupplier]:null;return rate==null||rate===''||!Number.isFinite(Number(rate))?null:Number(item.qty||0)*Number(rate);}
+function render(){
+ $('#quoteDate').value=draft.quoteDate||'';$('#gstRate').value=draft.gstRate??18;$('#versionStatus').value=draft.status||'Draft';
+ const query=$('#search').value.trim().toLowerCase(),filter=$('#supplierFilter').value,pendingOnly=$('#pendingOnly').checked;
+ const visible=draft.items.filter(it=>{const text=(it.description+' '+Object.keys(it.rates).join(' ')).toLowerCase();const missing=SUPPLIERS.some(s=>it.rates[s]==null||it.rates[s]==='');return (!query||text.includes(query))&&(!filter||filter in it.rates)&&(!pendingOnly||missing);});
+ $('#rows').innerHTML=visible.map(it=>{
+ const total=lineTotal(it),allMissing=SUPPLIERS.every(s=>it.rates[s]==null||it.rates[s]===''),selectedRate=it.selectedSupplier?it.rates[it.selectedSupplier]:null;
+ const validRates=SUPPLIERS.filter(s=>it.rates[s]!=null&&it.rates[s]!==''&&Number.isFinite(Number(it.rates[s])));
+ const cheapest=validRates.length?validRates.reduce((a,b)=>Number(it.rates[a])<=Number(it.rates[b])?a:b):'';
+ const rateCell=s=>'<td><input class="rate" type="number" min="0" step="0.01" data-rate="'+safe(it.id)+'" data-supplier="'+safe(s)+'" aria-label="'+safe(s)+' rate for '+safe(it.description)+'" value="'+(it.rates[s]??'')+'" placeholder="Not quoted"></td>';
+ return '<tr><td><input class="desc" data-field="description" data-id="'+it.id+'" value="'+safe(it.description)+'" aria-label="Description"></td><td><input class="desc" data-field="model" data-id="'+it.id+'" value="'+safe(it.model||'')+'" placeholder="Confirm exact model" aria-label="Exact model or SKU"></td><td><input class="qty" type="number" min="0" step="any" data-field="qty" data-id="'+it.id+'" value="'+safe(it.qty)+'" aria-label="Quantity"></td><td><input class="unit" data-field="unit" data-id="'+it.id+'" value="'+safe(it.unit)+'" aria-label="Unit"></td>'+rateCell(SUPPLIERS[0])+rateCell(SUPPLIERS[1])+rateCell(SUPPLIERS[2])+'<td><select class="supplier" data-field="selectedSupplier" data-id="'+it.id+'" aria-label="Selected supplier"><option value="">Select supplier…</option>'+SUPPLIERS.map(s=>'<option '+(it.selectedSupplier===s?'selected ':'')+'value="'+s+'">'+s+(s===cheapest?' · lowest quoted':'')+'</option>').join('')+'</select></td><td class="right">'+(total==null?'<span class="tag pending">Rate pending</span>':fmt(total))+'</td><td><input class="desc" data-field="notes" data-id="'+it.id+'" value="'+safe(it.notes||'')+'" placeholder="Quotation ref / verification note" aria-label="Quotation and verification notes"></td><td>'+(allMissing?'<span class="tag pending">No quote</span>':selectedRate==null||selectedRate===''?'<span class="tag draft">Selection pending</span>':'<span class="tag ok">Rate entered</span>')+'</td></tr>';
+ }).join('')||'<tr><td colspan="11" class="empty">No matching hardware items.</td></tr>';
+ const selected=draft.items.map(it=>({it,total:lineTotal(it)})),priced=selected.filter(x=>x.total!=null),subtotal=priced.reduce((s,x)=>s+x.total,0),pending=selected.filter(x=>x.total==null).length,allItems=selected.length,gst=Number(draft.gstRate)||0;
+ $('#versionMetric').textContent='V'+(store.history.at(-1)?.version||1)+' · '+(dirty?'Unsaved draft':draft.status||'Draft');
+ $('#itemMetric').textContent=allItems;
+ $('#pendingMetric').textContent=pending+' / '+allItems;
+ $('#subtotalMetric').textContent=fmt(subtotal);
+ $('#procurementSummary').innerHTML='<div><strong>'+priced.length+'</strong> line(s) have a selected supplier and a rate; <strong>'+pending+'</strong> line(s) have no selected price.</div><div>Selected subtotal (priced lines only): <strong>'+fmt(subtotal)+'</strong></div><div>GST at '+gst.toFixed(2)+'% on priced lines: <strong>'+fmt(subtotal*gst/100)+'</strong></div><div>Priced lines including GST: <strong>'+fmt(subtotal*(1+gst/100))+'</strong></div><div>Unpriced lines are excluded from totals, not treated as zero.</div>';
+ renderHistory();
+}
+function renderHistory(){const select=$('#historySelect'),old=select.value;select.innerHTML=store.history.slice().reverse().map(h=>'<option value="'+h.version+'">V'+h.version+' · '+safe(h.status)+' · '+new Date(h.createdAt).toLocaleDateString()+'</option>').join('');if(old&&Array.from(select.options).some(o=>o.value===old))select.value=old;$('#historyList').innerHTML=store.history.slice().reverse().map(h=>'<li><strong>V'+h.version+' · '+safe(h.status)+'</strong><br><span class="muted">'+safe(new Date(h.createdAt).toLocaleString())+' — '+safe(h.note||'Rate-list revision')+'</span></li>').join('');}
+function saveNewVersion(note){if(!saveDraftToStore())return;const version=store.nextVersion++;store.current=clone(draft);store.history.push({version,createdAt:now(),status:draft.status||'Draft',note:note||'Saved editable rate-list revision.',data:clone(draft)});dirty=false;persist();render();alert('Saved Hardware Rate Register V'+version+'. Previous versions remain in history.');}
+$('#rows').addEventListener('input',e=>{const el=e.target,id=el.dataset.id;if(el.dataset.rate){const it=draft.items.find(x=>x.id===el.dataset.rate);if(!it)return;it.rates[el.dataset.supplier]=el.value.trim()===''?null:Number(el.value);markDirty();render();return;}if(el.dataset.field){const it=draft.items.find(x=>x.id===id);if(!it)return;const key=el.dataset.field;it[key]=key==='qty'?Number(el.value):el.value;markDirty();if(key==='qty'||key==='description'||key==='unit')render();}});
+$('#rows').addEventListener('change',e=>{const el=e.target;if(el.dataset.field){const it=draft.items.find(x=>x.id===el.dataset.id);if(!it)return;it[el.dataset.field]=el.dataset.field==='qty'?Number(el.value):el.value;markDirty();render();}});
+$('#quoteDate').addEventListener('input',e=>{draft.quoteDate=e.target.value;markDirty();});
+$('#gstRate').addEventListener('input',e=>{draft.gstRate=Math.max(0,Math.min(100,Number(e.target.value)||0));markDirty();render();});
+$('#versionStatus').addEventListener('change',e=>{draft.status=e.target.value;markDirty();});
+['search','supplierFilter','pendingOnly'].forEach(id=>$('#'+id).addEventListener('input',render));
+$('#saveVersion').addEventListener('click',()=>{draft.quoteDate=$('#quoteDate').value;draft.gstRate=Number($('#gstRate').value)||0;draft.status=$('#versionStatus').value;saveNewVersion('Saved by user; quotation date '+draft.quoteDate+'; GST '+draft.gstRate+'% extra.');});
+$('#restoreVersion').addEventListener('click',()=>{const v=Number($('#historySelect').value),h=store.history.find(x=>x.version===v);if(!h)return;if(!confirm('Restore V'+v+' into the working draft? This will not delete history; save it as a new version to record the restoration.'))return;draft=clone(h.data);dirty=true;render();});
+$('#exportCsv').addEventListener('click',()=>{const rows=[['Item ID','Description','Quantity','Unit',...SUPPLIERS.map(s=>s+' rate INR'),'Selected supplier','Selected unit rate','Selected line total before GST','Quotation baseline','GST percent','Version status','Product/model','Notes'],...draft.items.map(it=>[it.id,it.description,it.qty,it.unit,...SUPPLIERS.map(s=>it.rates[s]??''),it.selectedSupplier,it.selectedSupplier?it.rates[it.selectedSupplier]??'':'',lineTotal(it)??'',draft.quoteDate,draft.gstRate,draft.status,it.model,it.notes])];download('dcode-hardware-rates.csv',rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv;charset=utf-8');});
+$('#exportJson').addEventListener('click',()=>download('dcode-hardware-rate-register-backup.json',JSON.stringify({store,draft,exportedAt:now()},null,2),'application/json'));
+function download(name,data,type){const url=URL.createObjectURL(new Blob([data],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+render();
+})();
+</script>
+</body>
+</html>
