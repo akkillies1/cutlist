@@ -15,8 +15,10 @@ export function buildCabinetCarcassGeometry(input = {}) {
   const boardMm = num(input.board);
   const shelfMm = num(input.shelfBoard, boardMm);
   const backMm = num(input.back);
-  const shelfCount = Math.floor(num(input.shelves));
-  const partitionCount = Math.floor(num(input.partitions));
+  const shelfCountRaw = num(input.shelves);
+  const partitionCountRaw = num(input.partitions);
+  const shelfCount = Math.floor(shelfCountRaw);
+  const partitionCount = Math.floor(partitionCountRaw);
   const shelfElevationRaw = String(input.shelfElevationsMm ?? '').trim();
   const suppliedShelfElevations = shelfElevationRaw ? shelfElevationRaw.split(',').map(v => Number(v.trim())) : [];
   const issues = [];
@@ -24,8 +26,8 @@ export function buildCabinetCarcassGeometry(input = {}) {
     issues.push('Outer dimensions and all board thicknesses must be positive.');
   if (widthMm <= 2 * boardMm || heightMm <= 2 * boardMm)
     issues.push('Width and height must exceed twice the carcass board thickness.');
-  if (!Number.isInteger(shelfCount) || shelfCount < 0 || shelfCount > 30) issues.push('Shelf count is outside the supported range.');
-  if (!Number.isInteger(partitionCount) || partitionCount < 0 || partitionCount > 10) issues.push('Partition count is outside the supported range.');
+  if (!Number.isInteger(shelfCountRaw) || shelfCountRaw < 0 || shelfCountRaw > 30) issues.push('Shelf count must be a whole number from 0 to 30.');
+  if (!Number.isInteger(partitionCountRaw) || partitionCountRaw < 0 || partitionCountRaw > 10) issues.push('Partition count must be a whole number from 0 to 10.');
   if (shelfElevationRaw && suppliedShelfElevations.length !== shelfCount) issues.push('Enter exactly one shelf elevation per shelf, or leave the field blank for equal spacing.');
   if (suppliedShelfElevations.some(v => !Number.isFinite(v))) issues.push('Shelf elevations must be numeric millimetre values separated by commas.');
   const innerWidthMm = widthMm - 2 * boardMm;
