@@ -1,6 +1,6 @@
 import { buildKitchenGeometry, validateKitchenGeometry } from './kitchen-geometry.js?v=103';
 import { buildCabinetCarcassGeometry } from './cabinet-geometry.js?v=101';
-import { validateManufacturingSystemSpecs } from './manufacturing-system-validation.js?v=1';
+import { validateManufacturingSystemSpecs } from './manufacturing-system-validation.js?v=2';
 import { calculateShutterDimensions } from './shutter-sizing.js?v=1';
 import { initPanelGeometry } from './panel-geometry-ui.js?v=100';
 import { initAssemblyStudio, getAssemblySnapshot } from './assembly-studio.js?v=102';
@@ -189,7 +189,7 @@ function getManufacturingSpecIssues(){
  if(edge!=='none'&&(!(thickness>0)||!Number.isFinite(thickness)))add('edgeThickness','Enter a positive edge-band thickness, or select No edge band.');
  if(value('material')==='Other / custom'&&!value('boardBrand')&&!value('boardGrade'))add('boardBrand','For Other / custom material, enter a supplier/specification or grade reference.');
  if(value('laminateType')==='Other / custom'&&!value('finish'))add('finish','Describe the custom surface system in Finish / sheen specification.');
- const systemIssues=validateManufacturingSystemSpecs(Object.fromEntries(['doorStyle','doors','hingeBrand','hingeModel','doorDataReference','doorFit','doorSideClearance','doorTopClearance','doorBottomClearance','doorMeetingGap','doorMaxWidth','doorMaxHeight','slidingModel','slidingDataReference','slidingSideClearance','slidingTopClearance','slidingBottomClearance','slidingOverlap','slidingMaxWidth','slidingMaxHeight','drawerBoxSizingEnabled','drawers','drawerRunnerBrand','drawerRunnerModel','drawerRunnerDataReference','drawerRunnerLength','drawerRunnerSideClearance','drawerRunnerDepthAllowance','drawerOpeningWidth','drawerOpeningHeight','drawerTopClearance','drawerBottomClearance'].map(k=>[k,state[k]])));
+ const systemIssues=validateManufacturingSystemSpecs(Object.fromEntries(['doorStyle','doors','hingeBrand','hingeModel','doorDataReference','doorFit','doorSideClearance','doorTopClearance','doorBottomClearance','doorMeetingGap','doorOverlaySide','doorOverlayTop','doorOverlayBottom','doorMaxWidth','doorMaxHeight','slidingModel','slidingDataReference','slidingSideClearance','slidingTopClearance','slidingBottomClearance','slidingOverlap','slidingMaxWidth','slidingMaxHeight','drawerBoxSizingEnabled','drawers','drawerRunnerBrand','drawerRunnerModel','drawerRunnerDataReference','drawerRunnerLength','drawerRunnerSideClearance','drawerRunnerDepthAllowance','drawerOpeningWidth','drawerOpeningHeight','drawerTopClearance','drawerBottomClearance'].map(k=>[k,state[k]])));
  issues.push(...systemIssues);
  return issues;
 }
