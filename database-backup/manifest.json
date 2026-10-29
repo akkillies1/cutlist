@@ -1,0 +1,78 @@
+{
+  "snapshot_date": "2026-10-29",
+  "source": "phase1_source_backup in private Hatchable working copy",
+  "table_count": 13,
+  "total_rows": 183,
+  "tables": [
+    {
+      "name": "dcode_cutlist_revisions",
+      "row_count": 0,
+      "captured_at": "2026-10-29T02:05:14.743564+00:00"
+    },
+    {
+      "name": "dcode_hardware_items",
+      "row_count": 35,
+      "captured_at": "2026-10-29T02:04:46.752479+00:00"
+    },
+    {
+      "name": "dcode_hardware_quotes",
+      "row_count": 140,
+      "captured_at": "2026-10-29T02:04:51.389752+00:00"
+    },
+    {
+      "name": "dcode_hardware_register_revisions",
+      "row_count": 3,
+      "captured_at": "2026-10-29T02:04:57.491319+00:00"
+    },
+    {
+      "name": "dcode_hardware_register_state",
+      "row_count": 1,
+      "captured_at": "2026-10-29T02:05:06.814834+00:00"
+    },
+    {
+      "name": "dcode_hardware_vendors",
+      "row_count": 4,
+      "captured_at": "2026-10-29T02:05:10.434886+00:00"
+    },
+    {
+      "name": "dcode_legacy_records",
+      "row_count": 0,
+      "captured_at": "2026-10-29T02:05:18.499966+00:00"
+    },
+    {
+      "name": "dcode_local_imports",
+      "row_count": 0,
+      "captured_at": "2026-10-29T02:05:22.255109+00:00"
+    },
+    {
+      "name": "dcode_migration_runs",
+      "row_count": 0,
+      "captured_at": "2026-10-29T02:05:30.844052+00:00"
+    },
+    {
+      "name": "dcode_project_records",
+      "row_count": 0,
+      "captured_at": "2026-10-29T02:05:34.061084+00:00"
+    },
+    {
+      "name": "dcode_project_revisions",
+      "row_count": 0,
+      "captured_at": "2026-10-29T02:05:38.138197+00:00"
+    },
+    {
+      "name": "dcode_projects",
+      "row_count": 0,
+      "captured_at": "2026-10-29T02:05:42.103726+00:00"
+    },
+    {
+      "name": "dcode_saved_templates",
+      "row_count": 0,
+      "captured_at": "2026-10-29T02:05:46.073179+00:00"
+    }
+  ],
+  "includes_vendor_contact_fields": true,
+  "includes_hardware_items_and_quotes": true,
+  "includes_hardware_register_state_and_revisions": true,
+  "production_modified": false,
+  "deployment_performed": false
+}
