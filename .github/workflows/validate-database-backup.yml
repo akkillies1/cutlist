@@ -1,0 +1,48 @@
+name: Validate database backup restore
+
+on:
+  push:
+    paths:
+      - 'migrations/001_schema.sql'
+      - 'seed.sql'
+      - 'database-backup/verify_restore.sql'
+      - '.github/workflows/validate-database-backup.yml'
+  pull_request:
+    paths:
+      - 'migrations/001_schema.sql'
+      - 'seed.sql'
+      - 'database-backup/verify_restore.sql'
+      - '.github/workflows/validate-database-backup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  restore-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cutlist_restore_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d cutlist_restore_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/cutlist_restore_test
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Restore schema
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/001_schema.sql
+      - name: Restore seed data
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f seed.sql
+      - name: Verify restored database
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database-backup/verify_restore.sql
